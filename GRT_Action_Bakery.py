@@ -16,22 +16,40 @@ class GRT_Load_Action_Menu(bpy.types.Menu):
     def draw(self, context):
         layout = self.layout
 
-        Operator = layout.operator("gamerigtool.action_bakery_list_operator", text="Load Action By Name", icon="SORTALPHA")
+        Operator = layout.operator(
+            "gamerigtool.action_bakery_list_operator",
+            text="Load Action By Name",
+            icon="SORTALPHA",
+        )
         Operator.operation = "LOAD_ACTION_BY_NAME"
 
-        Operator = layout.operator("gamerigtool.action_bakery_list_operator", text="Load All Action", icon="IMPORT")
+        Operator = layout.operator(
+            "gamerigtool.action_bakery_list_operator",
+            text="Load All Action",
+            icon="IMPORT",
+        )
         Operator.operation = "LOAD_ALL_ACTIONS"
 
-        Operator = layout.operator("gamerigtool.action_bakery_list_operator", text="Load From NLA", icon="NLA_PUSHDOWN")
+        Operator = layout.operator(
+            "gamerigtool.action_bakery_list_operator",
+            text="Load From NLA",
+            icon="NLA_PUSHDOWN",
+        )
         Operator.operation = "LOAD_FROM_NLA"
 
-        Operator = layout.operator("gamerigtool.batch_rename_actions", text="Batch Rename Actions", icon="SORTALPHA")
+        Operator = layout.operator(
+            "gamerigtool.batch_rename_actions",
+            text="Batch Rename Actions",
+            icon="SORTALPHA",
+        )
+
 
 class GRT_Action_Bakery_Set_Frame_Range_To_Action(bpy.types.Operator):
     """Set Frame Range to Action"""
+
     bl_idname = "gamerigtool.action_bakery_set_frame_range_to_action"
     bl_label = "Set Frame Range To Action"
-    bl_options = {'UNDO', 'REGISTER'}
+    bl_options = {"UNDO", "REGISTER"}
 
     index: bpy.props.IntProperty()
 
@@ -47,18 +65,32 @@ class GRT_Action_Bakery_Set_Frame_Range_To_Action(bpy.types.Operator):
             active_baker.Set_FR_Start = int(active_baker.Action.frame_range[0])
             active_baker.Set_FR_End = int(active_baker.Action.frame_range[1])
 
-
         Utility.update_UI()
 
-        return {'FINISHED'}
+        return {"FINISHED"}
 
-ENUM_list_operation = [("ADD","Add","Add"),("REMOVE","Remove","Remove"),("UP","Up","Up"), ("DOWN","Down","Down"),("ASSIGN","Assign","Assign"),("UNASSIGN","Unassign","Unassign"), ("LOAD_ALL_ACTIONS", "Load All Actions", "Load All Actions"), ("LOAD_ACTIVE_ACTIONS", "Load Active Actions", "Load Active Actions"), ("LOAD_ACTION_BY_NAME", "Load Action By Name", "Load Action By Name"), ("LOAD_FROM_NLA", "Load From NLA", "Load From NLA"), ("CLEAR_ALL_ACTIONS", "Clear All Action", "Clear All Action")]
+
+ENUM_list_operation = [
+    ("ADD", "Add", "Add"),
+    ("REMOVE", "Remove", "Remove"),
+    ("UP", "Up", "Up"),
+    ("DOWN", "Down", "Down"),
+    ("ASSIGN", "Assign", "Assign"),
+    ("UNASSIGN", "Unassign", "Unassign"),
+    ("LOAD_ALL_ACTIONS", "Load All Actions", "Load All Actions"),
+    ("LOAD_ACTIVE_ACTIONS", "Load Active Actions", "Load Active Actions"),
+    ("LOAD_ACTION_BY_NAME", "Load Action By Name", "Load Action By Name"),
+    ("LOAD_FROM_NLA", "Load From NLA", "Load From NLA"),
+    ("CLEAR_ALL_ACTIONS", "Clear All Action", "Clear All Action"),
+]
+
 
 class GRT_Action_Bakery_List_Operator(bpy.types.Operator):
     """List Operator"""
+
     bl_idname = "gamerigtool.action_bakery_list_operator"
     bl_label = "List Operator"
-    bl_options = {'UNDO', 'REGISTER'}
+    bl_options = {"UNDO", "REGISTER"}
 
     operation: bpy.props.EnumProperty(items=ENUM_list_operation)
     action: bpy.props.StringProperty()
@@ -70,12 +102,10 @@ class GRT_Action_Bakery_List_Operator(bpy.types.Operator):
     def draw(self, context):
         if self.operation == "ADD":
             layout = self.layout
-            layout.prop_search(self, "action", bpy.data, "actions" ,text="Action")
+            layout.prop_search(self, "action", bpy.data, "actions", text="Action")
         if self.operation == "LOAD_ACTION_BY_NAME":
             layout = self.layout
             layout.prop(self, "name_include", text="Name Include")
-
-        
 
     def invoke(self, context, event):
 
@@ -85,7 +115,6 @@ class GRT_Action_Bakery_List_Operator(bpy.types.Operator):
             return self.execute(context)
 
     def execute(self, context):
-
 
         scn = context.scene
         item_list = scn.GRT_Action_Bakery
@@ -101,11 +130,9 @@ class GRT_Action_Bakery_List_Operator(bpy.types.Operator):
 
         if self.operation == "CLEAR_ALL_ACTIONS":
 
-
             item_list.clear()
 
-            return {'FINISHED'}
-
+            return {"FINISHED"}
 
         if self.operation == "LOAD_FROM_NLA":
 
@@ -113,14 +140,11 @@ class GRT_Action_Bakery_List_Operator(bpy.types.Operator):
             if object:
                 if object.type == "ARMATURE":
 
-
                     if object.animation_data:
 
                         for nla_track in object.animation_data.nla_tracks:
 
                             for nla_strip in nla_track.strips:
-
-
 
                                 action = nla_strip.action
 
@@ -138,12 +162,9 @@ class GRT_Action_Bakery_List_Operator(bpy.types.Operator):
 
                                         scn.GRT_Action_Bakery_Index = len(item_list) - 1
 
-
             Utility.update_UI()
 
-            return {'FINISHED'}
-
-
+            return {"FINISHED"}
 
         if self.operation == "LOAD_ACTION_BY_NAME":
 
@@ -164,10 +185,7 @@ class GRT_Action_Bakery_List_Operator(bpy.types.Operator):
 
             Utility.update_UI()
 
-            return {'FINISHED'}
-
-
-
+            return {"FINISHED"}
 
         if self.operation == "LOAD_ACTIVE_ACTIONS":
 
@@ -196,8 +214,7 @@ class GRT_Action_Bakery_List_Operator(bpy.types.Operator):
 
             Utility.update_UI()
 
-            return {'FINISHED'}
-
+            return {"FINISHED"}
 
         if self.operation == "LOAD_ALL_ACTIONS":
 
@@ -217,8 +234,7 @@ class GRT_Action_Bakery_List_Operator(bpy.types.Operator):
 
             Utility.update_UI()
 
-            return {'FINISHED'}
-
+            return {"FINISHED"}
 
         if self.operation == "REMOVE":
 
@@ -227,7 +243,7 @@ class GRT_Action_Bakery_List_Operator(bpy.types.Operator):
             if len(item_list) == scn.GRT_Action_Bakery_Index:
                 scn.GRT_Action_Bakery_Index = len(item_list) - 1
             Utility.update_UI()
-            return {'FINISHED'}
+            return {"FINISHED"}
 
         if self.operation == "ADD":
 
@@ -239,31 +255,33 @@ class GRT_Action_Bakery_List_Operator(bpy.types.Operator):
 
                 item.LOCAL_Baked_Name = "BAKED_" + Action.name
 
-
                 scn.GRT_Action_Bakery_Index = len(item_list) - 1
 
                 Utility.update_UI()
 
-            return {'FINISHED'}
+            return {"FINISHED"}
 
         if self.operation == "UP":
             if item_index >= 1:
-                item_list.move(item_index, item_index-1)
+                item_list.move(item_index, item_index - 1)
                 scn.GRT_Action_Bakery_Index -= 1
-                return {'FINISHED'}
+                return {"FINISHED"}
 
         if self.operation == "DOWN":
-            if len(item_list)-1 > item_index:
-                item_list.move(item_index, item_index+1)
+            if len(item_list) - 1 > item_index:
+                item_list.move(item_index, item_index + 1)
                 scn.GRT_Action_Bakery_Index += 1
-                return {'FINISHED'}
+                return {"FINISHED"}
 
         Utility.update_UI()
-        return {'FINISHED'}
+        return {"FINISHED"}
+
 
 class GRT_UL_Action_Bakery_List(bpy.types.UIList):
 
-    def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
+    def draw_item(
+        self, context, layout, data, item, icon, active_data, active_propname, index
+    ):
 
         scn = context.scene
         ob = data
@@ -278,88 +296,86 @@ class GRT_UL_Action_Bakery_List(bpy.types.UIList):
         else:
             row.label(text="Missing Action", icon="ERROR")
 
-
         # row = row.row(align=True)
         # row.alignment = "RIGHT"
         # row.prop(item, "use_loop", text="", icon="FILE_REFRESH")
 
-        Operator = row.operator("gamerigtool.action_bakery_list_operator", text="", icon="X")
+        Operator = row.operator(
+            "gamerigtool.action_bakery_list_operator", text="", icon="X"
+        )
         Operator.operation = "REMOVE"
         Operator.index = index
 
+        # row.prop(Action, "name", text="")
 
-            # row.prop(Action, "name", text="")
 
 class GRT_PT_Action_Bakery(bpy.types.Panel):
 
     bl_label = "Game Rig Tools"
-    bl_space_type = 'VIEW_3D'
-    bl_region_type = 'UI'
+    bl_space_type = "VIEW_3D"
+    bl_region_type = "UI"
     bl_category = "Game Rig Tools"
 
     # @classmethod
     # def poll(cls, context):
 
-        #Top Bar Toogle Constraint Update
+    # Top Bar Toogle Constraint Update
 
-        # addon_preferences = context.preferences.addons[addon_name].preferences
-        #
-        # if addon_preferences.side_panel:
-        #     return True
-        # else:
-        #     return False
+    # addon_preferences = context.preferences.addons[addon_name].preferences
+    #
+    # if addon_preferences.side_panel:
+    #     return True
+    # else:
+    #     return False
 
     def draw(self, context):
         layout = self.layout
 
         scn = context.scene
 
-
         addon_preferences = context.preferences.addons[addon_name].preferences
-
 
         row = layout.row(align=True)
 
-        operator = row.operator("gamerigtool.toogle_constraint", text="Mute", icon="HIDE_ON")
+        operator = row.operator(
+            "gamerigtool.toogle_constraint", text="Mute", icon="HIDE_ON"
+        )
         operator.mute = True
         operator.use_selected = addon_preferences.use_selected
 
-        operator = row.operator("gamerigtool.toogle_constraint", text="Unmute", icon="HIDE_OFF")
+        operator = row.operator(
+            "gamerigtool.toogle_constraint", text="Unmute", icon="HIDE_OFF"
+        )
         operator.mute = False
         operator.use_selected = addon_preferences.use_selected
 
         row.prop(addon_preferences, "use_selected", text="", icon="RESTRICT_SELECT_OFF")
-
-
-
 
         Global_Settings = scn.GRT_Action_Bakery_Global_Settings
 
         control_rig = Global_Settings.Source_Armature
         deform_rig = Global_Settings.Target_Armature
 
-
-
         # layout.label(text="Bake Settings")
-
 
         col = layout.column(align=True)
         col.label(text="Control Rig")
 
         row = col.row(align=True)
-        row.prop(Global_Settings, "Source_Armature", text="")
-        row.prop(Global_Settings, "active_to_control_rig", text="", icon="RESTRICT_SELECT_OFF")
+        row.prop(Global_Settings, "Source_Armature", text="", placeholder="Control Rig")
+        row.prop(
+            Global_Settings,
+            "active_to_control_rig",
+            text="",
+            icon="EYEDROPPER",
+        )
 
         col.label(text="Game Rig")
         row = col.row(align=True)
-        row.prop(Global_Settings, "Target_Armature", text="")
-        row.prop(Global_Settings, "active_to_game_rig", text="", icon="RESTRICT_SELECT_OFF")
+        row.prop(Global_Settings, "Target_Armature", text="", placeholder="Game Rig")
+        row.prop(Global_Settings, "active_to_game_rig", text="", icon="EYEDROPPER")
 
         layout.separator()
-
-
-
-
 
         col = layout.column(align=True)
         col.scale_y = 2
@@ -368,11 +384,19 @@ class GRT_PT_Action_Bakery(bpy.types.Panel):
             col.enabled = False
 
         if not deform_rig:
-            op = col.operator("gamerigtool.generate_game_rig", text="Generate Game Rig", icon="OUTLINER_OB_ARMATURE")
+            op = col.operator(
+                "gamerigtool.generate_game_rig",
+                text="Generate Game Rig",
+                icon="OUTLINER_OB_ARMATURE",
+            )
             op.Use_Regenerate_Rig = False
             op.Use_Legacy = False
         else:
-            op = col.operator("gamerigtool.generate_game_rig", text="Regenerate Game Rig", icon="FILE_REFRESH")
+            op = col.operator(
+                "gamerigtool.generate_game_rig",
+                text="Regenerate Game Rig",
+                icon="FILE_REFRESH",
+            )
             op.Use_Regenerate_Rig = True
             op.Use_Legacy = False
 
@@ -380,34 +404,44 @@ class GRT_PT_Action_Bakery(bpy.types.Panel):
             box = layout.box()
             box.label(text="Select Control Rig", icon="INFO")
 
-
-
-
-
-
-
-
-
         # op = layout.operator("gamerigtool.generate_game_rig", text="Generate Game Rig (Legacy)", icon="OUTLINER_OB_ARMATURE")
         # op.Use_Regenerate_Rig = False
         # op.Use_Legacy = True
 
+        subheader, subpanel = layout.panel("grt_utility_tool", default_closed=False)
+        subheader.label(text="Action Bakery", icon="ACTION")
+        if subpanel:
 
+            # if Utility.draw_subpanel(
+            #     Global_Settings,
+            #     Global_Settings.Show_Action_Bakery,
+            #     "Show_Action_Bakery",
+            #     "Action Bakery",
+            #     layout,
+            # ):
 
-        if Utility.draw_subpanel(Global_Settings, Global_Settings.Show_Action_Bakery, "Show_Action_Bakery", "Action Bakery", layout):
-
-
-            row = layout.row(align=True)
+            row = subpanel.row(align=True)
             col2 = row.column(align=True)
-            col2.template_list("GRT_UL_Action_Bakery_List", "", scn, "GRT_Action_Bakery", scn, "GRT_Action_Bakery_Index")
+            col2.template_list(
+                "GRT_UL_Action_Bakery_List",
+                "",
+                scn,
+                "GRT_Action_Bakery",
+                scn,
+                "GRT_Action_Bakery_Index",
+            )
 
             col = row.column(align=True)
 
-            Operator = col.operator("gamerigtool.action_bakery_list_operator", text="", icon="ADD")
+            Operator = col.operator(
+                "gamerigtool.action_bakery_list_operator", text="", icon="ADD"
+            )
             Operator.operation = "ADD"
             Operator.index = scn.GRT_Action_Bakery_Index
 
-            Operator = col.operator("gamerigtool.action_bakery_list_operator", text="", icon="REMOVE")
+            Operator = col.operator(
+                "gamerigtool.action_bakery_list_operator", text="", icon="REMOVE"
+            )
             Operator.operation = "REMOVE"
             Operator.index = scn.GRT_Action_Bakery_Index
 
@@ -415,15 +449,17 @@ class GRT_PT_Action_Bakery(bpy.types.Panel):
             col.menu("GRT_MT_load_action_menu", text="", icon="DOWNARROW_HLT")
             col.separator()
 
-            Operator = col.operator("gamerigtool.action_bakery_list_operator", text="", icon="TRIA_UP")
+            Operator = col.operator(
+                "gamerigtool.action_bakery_list_operator", text="", icon="TRIA_UP"
+            )
             Operator.operation = "UP"
             Operator.index = scn.GRT_Action_Bakery_Index
 
-            Operator = col.operator("gamerigtool.action_bakery_list_operator", text="", icon="TRIA_DOWN")
+            Operator = col.operator(
+                "gamerigtool.action_bakery_list_operator", text="", icon="TRIA_DOWN"
+            )
             Operator.operation = "DOWN"
             Operator.index = scn.GRT_Action_Bakery_Index
-
-
 
             # Operator = col.operator("gamerigtool.action_bakery_list_operator", text="", icon="SORTALPHA")
             # Operator.operation = "LOAD_ACTION_BY_NAME"
@@ -452,39 +488,45 @@ class GRT_PT_Action_Bakery(bpy.types.Panel):
             row3 = row2.row(align=True)
             row3.enabled = True
             row3.enabled = LOAD_ACTION_ENABLE
-            Operator = row3.operator("gamerigtool.action_bakery_list_operator", text="Active", icon="IMPORT")
+            Operator = row3.operator(
+                "gamerigtool.action_bakery_list_operator", text="Active", icon="IMPORT"
+            )
             Operator.operation = "LOAD_ACTIVE_ACTIONS"
 
             row3 = row2.row(align=True)
             row3.enabled = LOAD_NLA_ENABLE
 
-            Operator = row3.operator("gamerigtool.action_bakery_list_operator", text="From NLA", icon="NLA_PUSHDOWN")
+            Operator = row3.operator(
+                "gamerigtool.action_bakery_list_operator",
+                text="From NLA",
+                icon="NLA_PUSHDOWN",
+            )
             Operator.operation = "LOAD_FROM_NLA"
 
             row2 = col2.row(align=True)
 
-            Operator = row2.operator("gamerigtool.action_bakery_list_operator", text="Load All", icon="IMPORT")
+            Operator = row2.operator(
+                "gamerigtool.action_bakery_list_operator",
+                text="Load All",
+                icon="IMPORT",
+            )
             Operator.operation = "LOAD_ALL_ACTIONS"
 
-            Operator = row2.operator("gamerigtool.action_bakery_list_operator", text="Clear All", icon="TRASH")
+            Operator = row2.operator(
+                "gamerigtool.action_bakery_list_operator",
+                text="Clear All",
+                icon="TRASH",
+            )
             Operator.operation = "CLEAR_ALL_ACTIONS"
-
-
-
-
-
-
 
             if len(scn.GRT_Action_Bakery) > 0:
                 if scn.GRT_Action_Bakery_Index < len(scn.GRT_Action_Bakery):
 
-
-
-                    active_baker = context.scene.GRT_Action_Bakery[scn.GRT_Action_Bakery_Index]
+                    active_baker = context.scene.GRT_Action_Bakery[
+                        scn.GRT_Action_Bakery_Index
+                    ]
 
                     col2.prop(active_baker, "Action", text="")
-
-
 
                     # layout.separator()
                     #
@@ -497,10 +539,12 @@ class GRT_PT_Action_Bakery(bpy.types.Panel):
 
                     # if Utility.draw_subpanel(active_baker, active_baker.SHOW_Local_Settings, "SHOW_Local_Settings", "Local Settings", layout):
 
-                    layout.label(text="Local Settings")
+                    subpanel.label(text="Local Settings")
 
-                    col3 = layout.column(align=True)
-                    col3.prop(active_baker, "use_Local_Name", text="Set Baked Action name")
+                    col3 = subpanel.column(align=True)
+                    col3.prop(
+                        active_baker, "use_Local_Name", text="Set Baked Action name"
+                    )
 
                     if active_baker.use_Local_Name:
                         col3.prop(active_baker, "LOCAL_Baked_Name", text="")
@@ -521,15 +565,26 @@ class GRT_PT_Action_Bakery(bpy.types.Panel):
                         if active_baker.Frame_Range_Mode == "ACTION":
                             row3 = col3.row(align=True)
                             # row3.prop(active_baker.Action, "frame_range", text="")
-                            row3.label(text="Start: " + str(active_baker.Action.frame_range[0]), icon="ACTION")
-                            row3.label(text="End: " + str(active_baker.Action.frame_range[1]), icon="ACTION")
+                            row3.label(
+                                text="Start: "
+                                + str(active_baker.Action.frame_range[0]),
+                                icon="ACTION",
+                            )
+                            row3.label(
+                                text="End: " + str(active_baker.Action.frame_range[1]),
+                                icon="ACTION",
+                            )
                             col3.separator()
 
                         if active_baker.Frame_Range_Mode == "SET":
                             row3 = col3.row(align=True)
                             row3.prop(active_baker, "Set_FR_Start", text="Set Start")
                             row3.prop(active_baker, "Set_FR_End", text="Set End")
-                            row3.operator("gamerigtool.action_bakery_set_frame_range_to_action", text="", icon="FILE_REFRESH").index = scn.GRT_Action_Bakery_Index
+                            row3.operator(
+                                "gamerigtool.action_bakery_set_frame_range_to_action",
+                                text="",
+                                icon="FILE_REFRESH",
+                            ).index = scn.GRT_Action_Bakery_Index
                             col3.separator()
 
                         if active_baker.Frame_Range_Mode == "TRIM":
@@ -538,60 +593,51 @@ class GRT_PT_Action_Bakery(bpy.types.Panel):
                             row3.prop(active_baker, "Trim_FR_End", text="Trim End")
 
                             row3 = col3.row(align=True)
-                            row3.label(text="Start: " + str(active_baker.Action.frame_range[0] + active_baker.Trim_FR_Start), icon="SCULPTMODE_HLT")
-                            row3.label(text="End: "+ str(active_baker.Action.frame_range[1] - active_baker.Trim_FR_End), icon="SCULPTMODE_HLT")
+                            row3.label(
+                                text="Start: "
+                                + str(
+                                    active_baker.Action.frame_range[0]
+                                    + active_baker.Trim_FR_Start
+                                ),
+                                icon="SCULPTMODE_HLT",
+                            )
+                            row3.label(
+                                text="End: "
+                                + str(
+                                    active_baker.Action.frame_range[1]
+                                    - active_baker.Trim_FR_End
+                                ),
+                                icon="SCULPTMODE_HLT",
+                            )
                             col3.separator()
 
-                        col3.prop(active_baker, "offset_keyframe_to_frame_one", text="Offset to Frame One")
+                        col3.prop(
+                            active_baker,
+                            "offset_keyframe_to_frame_one",
+                            text="Offset to Frame One",
+                        )
                     # if active_baker.use_Local_Trim:
                     #
                     #     col3.prop(active_baker, "LOCAL_Trim", text="Trim")
 
-
-
-
-                    layout.separator()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
             # box.label(text="Baked Name: " + Change_to_Baked_Name(context, item))
-            
+
             if not Global_Settings.Source_Armature:
-                box = layout.box()
+                box = subpanel.box()
                 box.label(text="Select Control Rig", icon="ERROR")
             if not Global_Settings.Target_Armature:
-                box = layout.box()
+                box = subpanel.box()
                 box.label(text="Select Game Rig", icon="ERROR")
 
             for item in check_invalid_name(context):
-                box = layout.box()
+                box = subpanel.box()
                 box.label(text=item.Action.name, icon="ERROR")
                 box.label(text="Baked Action Have Same Action Name")
                 box.label(text="Possible Solutions:", icon="INFO")
                 box.label(text="A: Adjust Baked Name Settings")
                 box.label(text="B: Turn Off Overwrite")
 
-            row = layout.row(align=True)
+            row = subpanel.row(align=True)
 
             col = row.column(align=True)
             col.scale_y = 2
@@ -599,35 +645,35 @@ class GRT_PT_Action_Bakery(bpy.types.Panel):
             row2.operator("gamerigtool.bake_action_bakery", icon="KEYTYPE_KEYFRAME_VEC")
             row2.prop(Global_Settings, "Bake_Popup", text="", icon="SETTINGS")
 
-            layout.prop(Global_Settings, "Overwrite", text="Overwrite")
+            subpanel.prop(Global_Settings, "Overwrite", text="Overwrite")
 
-            layout.prop(Global_Settings, "Push_to_NLA", text="Push To NLA")
+            subpanel.prop(Global_Settings, "Push_to_NLA", text="Push To NLA")
 
-            layout.separator()
+            subpanel.separator()
 
+            subheader, subpanel = subpanel.panel(
+                "grt_bake_settings", default_closed=False
+            )
+            subheader.label(text="Global Bake Settings", icon="SETTINGS")
+            if subpanel:
 
+                # if Utility.draw_subpanel(
+                #     Global_Settings,
+                #     Global_Settings.SHOW_Bake_Settings,
+                #     "SHOW_Bake_Settings",
+                #     "Global Bake Settings",
+                #     subpanel,
+                # ):
 
+                draw_global_bake_settings(subpanel, context)
 
-
-
-
-            if Utility.draw_subpanel(Global_Settings, Global_Settings.SHOW_Bake_Settings, "SHOW_Bake_Settings", "Global Bake Settings", layout):
-
-                draw_global_bake_settings(layout, context)
 
 def draw_global_bake_settings(layout, context):
 
     scn = context.scene
     Global_Settings = scn.GRT_Action_Bakery_Global_Settings
 
-
-
-
-
-
     col = layout.column(align=True)
-
-
 
     col.label(text="Baked Name")
 
@@ -653,63 +699,104 @@ def draw_global_bake_settings(layout, context):
     layout.separator()
 
     layout.label(text="Settings")
-    layout.operator("gamerigtool.reset_bake_settings_to_default", text="Reset To Default", icon="FILE_REFRESH")
-    layout.prop(Global_Settings, "Pre_Unmute_Constraint", text="Unmute Constraints Before Bake")
-    layout.prop(Global_Settings, "Post_Mute_Constraint", text="Mute Constraints After Bake")
-    layout.prop(Global_Settings, "GLOBAL_Clear_Transform_Before_Bake", text="Clear Transform Before Baking")
+    layout.operator(
+        "gamerigtool.reset_bake_settings_to_default",
+        text="Reset To Default",
+        icon="FILE_REFRESH",
+    )
+    layout.prop(
+        Global_Settings, "Pre_Unmute_Constraint", text="Unmute Constraints Before Bake"
+    )
+    layout.prop(
+        Global_Settings, "Post_Mute_Constraint", text="Mute Constraints After Bake"
+    )
+    layout.prop(
+        Global_Settings,
+        "GLOBAL_Clear_Transform_Before_Bake",
+        text="Clear Transform Before Baking",
+    )
 
     layout.separator()
 
     layout.label(text="Bake Settings")
     layout.prop(Global_Settings, "BAKE_SETTINGS_Only_Selected", text="Only Selected")
     layout.prop(Global_Settings, "BAKE_SETTINGS_Do_Visual_Keying", text="Visual Keying")
-    layout.prop(Global_Settings, "BAKE_SETTINGS_Do_Constraint_Clear", text="Clear Constraint")
+    layout.prop(
+        Global_Settings, "BAKE_SETTINGS_Do_Constraint_Clear", text="Clear Constraint"
+    )
     layout.prop(Global_Settings, "BAKE_SETTINGS_Do_Parent_Clear", text="Clear Parent")
     layout.prop(Global_Settings, "BAKE_SETTINGS_Do_Clean", text="Clean Curves")
     layout.prop(Global_Settings, "BAKE_SETTINGS_Do_Pose", text="Bake Pose")
     layout.prop(Global_Settings, "BAKE_SETTINGS_Do_Object", text="Bake Object")
 
+    layout.label(text="Channels")
+    layout.prop(Global_Settings, "BAKE_SETTINGS_Location", text="Location")
+    layout.prop(Global_Settings, "BAKE_SETTINGS_Rotation", text="Rotaton")
+    layout.prop(Global_Settings, "BAKE_SETTINGS_Scale", text="Scale")
+    layout.prop(Global_Settings, "BAKE_SETTINGS_BBone", text="BBone")
+    layout.prop(
+        Global_Settings, "BAKE_SETTINGS_Custom_Properties", text="Custom Properties"
+    )
+
+
 def POLL_Armature(self, object):
     return object.type == "ARMATURE"
+
 
 def UPDATE_SET_Start(self, context):
     if self.Set_FR_Start >= self.Set_FR_End:
         self.Set_FR_End = self.Set_FR_Start + 1
 
+
 def UPDATE_SET_End(self, context):
     if self.Set_FR_End <= self.Set_FR_Start:
         self.Set_FR_Start = self.Set_FR_End - 1
 
-#Set to Action
+
+# Set to Action
+
 
 def UPDATE_TRIM_Start(self, context):
     if self.Action:
-        start = int(self.Action.frame_range[0])+ self.Trim_FR_Start
+        start = int(self.Action.frame_range[0]) + self.Trim_FR_Start
         end = int(self.Action.frame_range[1]) - self.Trim_FR_End
 
         if start >= end:
 
+            self.Trim_FR_Start = end - 2
 
-            self.Trim_FR_Start = end-2
 
 def UPDATE_TRIM_End(self, context):
 
     if self.Action:
         start = int(self.Action.frame_range[0]) + self.Trim_FR_Start
-        end = int(self.Action.frame_range[1])- self.Trim_FR_End
+        end = int(self.Action.frame_range[1]) - self.Trim_FR_End
 
         if end <= start:
 
-            self.Trim_FR_End = int(self.Action.frame_range[1]) - int(self.Action.frame_range[0]) + self.Trim_FR_Start -1
+            self.Trim_FR_End = (
+                int(self.Action.frame_range[1])
+                - int(self.Action.frame_range[0])
+                + self.Trim_FR_Start
+                - 1
+            )
 
 
-ENUM_Trim_Type = [("KEYFRAME","Keyframe","Keyframe"),("NLA_STRIP","NLA Strip","NLA Strip")]
-ENUM_Frame_Range_Mode = [("ACTION","Action","Action"),("SET","Set","Set"),("TRIM","Trim","Trim")]
+ENUM_Trim_Type = [
+    ("KEYFRAME", "Keyframe", "Keyframe"),
+    ("NLA_STRIP", "NLA Strip", "NLA Strip"),
+]
+ENUM_Frame_Range_Mode = [
+    ("ACTION", "Action", "Action"),
+    ("SET", "Set", "Set"),
+    ("TRIM", "Trim", "Trim"),
+]
+
+
 class GRT_Action_Bakery_Property_Group(bpy.types.PropertyGroup):
 
-    Action : bpy.props.PointerProperty(name="Action", type=bpy.types.Action)
+    Action: bpy.props.PointerProperty(name="Action", type=bpy.types.Action)
     Bake_Select: bpy.props.BoolProperty(default=True)
-
 
     SHOW_Local_Settings: bpy.props.BoolProperty(default=False)
 
@@ -733,12 +820,11 @@ class GRT_Action_Bakery_Property_Group(bpy.types.PropertyGroup):
 
 def UPDATE_active_to_control_rig(self, context):
 
-
     if context.object:
         if context.object.type == "ARMATURE":
 
             if not context.object == self.Target_Armature:
-                self.Source_Armature= context.object
+                self.Source_Armature = context.object
 
     if self.active_to_control_rig:
         self.active_to_control_rig = False
@@ -746,27 +832,21 @@ def UPDATE_active_to_control_rig(self, context):
 
 def UPDATE_active_to_game_rig(self, context):
 
-
     if context.object:
         if context.object.type == "ARMATURE":
 
             if not context.object == self.Source_Armature:
-                self.Target_Armature= context.object
+                self.Target_Armature = context.object
 
     if self.active_to_game_rig:
         self.active_to_game_rig = False
 
 
-
-
-
-
-
-ENUM_Baked_Name_Mode = [("SUFFIX","Suffix","Suffix"),("PREFIX","Prefix","Prefix"),("REPLACE","Replace","Replace")]
-
-
-
-
+ENUM_Baked_Name_Mode = [
+    ("SUFFIX", "Suffix", "Suffix"),
+    ("PREFIX", "Prefix", "Prefix"),
+    ("REPLACE", "Replace", "Replace"),
+]
 
 
 class GRT_Action_Bakery_Global_Settings_Property_Group(bpy.types.PropertyGroup):
@@ -784,11 +864,14 @@ class GRT_Action_Bakery_Global_Settings_Property_Group(bpy.types.PropertyGroup):
 
     GLOBAL_Trim_End_Frame: bpy.props.IntProperty(min=0)
 
-
     SHOW_Bake_Settings: bpy.props.BoolProperty(default=False)
 
-    Source_Armature: bpy.props.PointerProperty(name="Control Armature", type=bpy.types.Object, poll=POLL_Armature)
-    Target_Armature: bpy.props.PointerProperty(name="Deform Armature", type=bpy.types.Object, poll=POLL_Armature)
+    Source_Armature: bpy.props.PointerProperty(
+        name="Control Armature", type=bpy.types.Object, poll=POLL_Armature
+    )
+    Target_Armature: bpy.props.PointerProperty(
+        name="Deform Armature", type=bpy.types.Object, poll=POLL_Armature
+    )
 
     Bake_Popup: bpy.props.BoolProperty(default=True)
 
@@ -800,24 +883,22 @@ class GRT_Action_Bakery_Global_Settings_Property_Group(bpy.types.PropertyGroup):
     BAKE_SETTINGS_Do_Parent_Clear: bpy.props.BoolProperty(default=False)
     BAKE_SETTINGS_Do_Clean: bpy.props.BoolProperty(default=False)
 
-    active_to_control_rig: bpy.props.BoolProperty(default=False, update=UPDATE_active_to_control_rig)
-    active_to_game_rig: bpy.props.BoolProperty(default=False, update=UPDATE_active_to_game_rig)
+    BAKE_SETTINGS_Location: bpy.props.BoolProperty(default=True)
+    BAKE_SETTINGS_Rotation: bpy.props.BoolProperty(default=True)
+    BAKE_SETTINGS_Scale: bpy.props.BoolProperty(default=True)
+    BAKE_SETTINGS_BBone: bpy.props.BoolProperty(default=True)
+    BAKE_SETTINGS_Custom_Properties: bpy.props.BoolProperty(default=True)
+
+    active_to_control_rig: bpy.props.BoolProperty(
+        default=False, update=UPDATE_active_to_control_rig
+    )
+    active_to_game_rig: bpy.props.BoolProperty(
+        default=False, update=UPDATE_active_to_game_rig
+    )
 
     Show_Action_Bakery: bpy.props.BoolProperty(default=False)
 
-
-
     GLOBAL_Clear_Transform_Before_Bake: bpy.props.BoolProperty(default=True)
-
-
-
-
-
-
-
-
-
-
 
 
 def Change_to_Baked_Name(context, item):
@@ -828,42 +909,43 @@ def Change_to_Baked_Name(context, item):
 
     name = None
 
-    if item.Action: 
+    if item.Action:
         name = item.Action.name
 
         if item.use_Local_Name:
             name = item.LOCAL_Baked_Name
-        else: 
+        else:
             if Settings.GLOBAL_Baked_Name_Mode == "SUFFIX":
                 name = item.Action.name + Settings.GLOBAL_Baked_Name_01
-            
+
             if Settings.GLOBAL_Baked_Name_Mode == "PREFIX":
                 name = Settings.GLOBAL_Baked_Name_01 + item.Action.name
-        
+
             if Settings.GLOBAL_Baked_Name_Mode == "REPLACE":
-                name = item.Action.name.replace(Settings.GLOBAL_Baked_Name_01, Settings.GLOBAL_Baked_Name_02)
-    
+                name = item.Action.name.replace(
+                    Settings.GLOBAL_Baked_Name_01, Settings.GLOBAL_Baked_Name_02
+                )
+
     return name
-
-
 
 
 def check_invalid_name(context):
     scn = context.scene
     Action_Bakery = scn.GRT_Action_Bakery
-    
+
     Settings = scn.GRT_Action_Bakery_Global_Settings
 
     check = []
 
     if Settings.Overwrite:
-            
+
         for item in Action_Bakery:
             if item.Action:
                 if item.Action.name == Change_to_Baked_Name(context, item):
                     check.append(item)
 
     return check
+
 
 def clear_pose(obj):
     for n in obj.pose.bones:
@@ -878,7 +960,7 @@ class GRT_Bake_Action_Bakery(bpy.types.Operator):
 
     bl_idname = "gamerigtool.bake_action_bakery"
     bl_label = "Bake Action Bakery"
-    bl_info = {'UNDO', "REGISTER"}
+    bl_info = {"UNDO", "REGISTER"}
 
     @classmethod
     def poll(cls, context):
@@ -923,7 +1005,6 @@ class GRT_Bake_Action_Bakery(bpy.types.Operator):
         control_rig = Global_Settings.Source_Armature
         deform_rig = Global_Settings.Target_Armature
 
-
         NLA_Strip_Check = []
 
         CTRL_Save_Use_NLA = None
@@ -948,14 +1029,11 @@ class GRT_Bake_Action_Bakery(bpy.types.Operator):
                 clear_pose(control_rig)
                 clear_pose(deform_rig)
 
-
             if control_rig.type == "ARMATURE" and deform_rig.type == "ARMATURE":
 
                 Control_Rig_Action_Save = None
 
                 for Baker in Action_Bakery:
-
-
 
                     if control_rig.animation_data:
 
@@ -978,8 +1056,6 @@ class GRT_Bake_Action_Bakery(bpy.types.Operator):
                                 for constraint in bone.constraints:
                                     constraint.mute = False
 
-
-
                         if Baker.Action:
                             if Baker.Bake_Select:
 
@@ -988,15 +1064,11 @@ class GRT_Bake_Action_Bakery(bpy.types.Operator):
                                 # for nla_track in control_rig.animation_data.nla_tracks:
                                 #     nla_track.mute = True
 
-
                                 control_rig.animation_data.action = action
 
                                 if Global_Settings.GLOBAL_Clear_Transform_Before_Bake:
                                     clear_pose(control_rig)
                                     clear_pose(deform_rig)
-
-
-
 
                                 if Baker.use_Local_Name:
                                     if Baker.LOCAL_Baked_Name:
@@ -1006,14 +1078,30 @@ class GRT_Bake_Action_Bakery(bpy.types.Operator):
 
                                 else:
 
-                                    if Global_Settings.GLOBAL_Baked_Name_Mode == "REPLACE":
-                                        action_name = action.name.replace(Global_Settings.GLOBAL_Baked_Name_01, Global_Settings.GLOBAL_Baked_Name_02)
-                                    if Global_Settings.GLOBAL_Baked_Name_Mode == "PREFIX":
-                                        action_name = Global_Settings.GLOBAL_Baked_Name_01 + action.name
-                                    if Global_Settings.GLOBAL_Baked_Name_Mode == "SUFFIX":
-                                        action_name =  action.name + Global_Settings.GLOBAL_Baked_Name_01
-
-
+                                    if (
+                                        Global_Settings.GLOBAL_Baked_Name_Mode
+                                        == "REPLACE"
+                                    ):
+                                        action_name = action.name.replace(
+                                            Global_Settings.GLOBAL_Baked_Name_01,
+                                            Global_Settings.GLOBAL_Baked_Name_02,
+                                        )
+                                    if (
+                                        Global_Settings.GLOBAL_Baked_Name_Mode
+                                        == "PREFIX"
+                                    ):
+                                        action_name = (
+                                            Global_Settings.GLOBAL_Baked_Name_01
+                                            + action.name
+                                        )
+                                    if (
+                                        Global_Settings.GLOBAL_Baked_Name_Mode
+                                        == "SUFFIX"
+                                    ):
+                                        action_name = (
+                                            action.name
+                                            + Global_Settings.GLOBAL_Baked_Name_01
+                                        )
 
                                     # else:
                                     #     frame = [i for i in range(int(action.frame_range[0]), int(action.frame_range[1])+1-Global_Settings.GLOBAL_Trim_End_Frame)]
@@ -1025,34 +1113,55 @@ class GRT_Bake_Action_Bakery(bpy.types.Operator):
                                     start_frame = int(action.frame_range[0])
                                     end_frame = int(action.frame_range[1]) + 1
                                 if Baker.Frame_Range_Mode == "TRIM":
-                                    start_frame = int(action.frame_range[0]) + Baker.Trim_FR_Start
-                                    end_frame = int(action.frame_range[1]) + 1 - Baker.Trim_FR_End
-
+                                    start_frame = (
+                                        int(action.frame_range[0]) + Baker.Trim_FR_Start
+                                    )
+                                    end_frame = (
+                                        int(action.frame_range[1])
+                                        + 1
+                                        - Baker.Trim_FR_End
+                                    )
 
                                 frame = [i for i in range(start_frame, end_frame)]
 
                                 context.scene.frame_current = start_frame
-
 
                                 # if Baker.use_Local_Trim:
                                 #     frame = [i for i in range(int(action.frame_range[0]), int(action.frame_range[1])+1-Baker.LOCAL_Trim)]
                                 # else:
                                 #     frame = [i for i in range(int(action.frame_range[0]), int(action.frame_range[1])+1)]
 
-
                                 if Global_Settings.Overwrite:
                                     check = bpy.data.actions.get(action_name)
                                     if check:
                                         bpy.data.actions.remove(check)
                                         bpy.data.actions.new(action_name)
-                                    obj_act = [[deform_rig, bpy.data.actions.get(action_name)]]
+                                    obj_act = [
+                                        [deform_rig, bpy.data.actions.get(action_name)]
+                                    ]
                                 else:
                                     obj_act = [[deform_rig, None]]
 
                                 # obj_act = [[deform_rig, None]]
-                                Baked_Action = anim_utils.bake_action_objects(obj_act, frames=frame, only_selected=Global_Settings.BAKE_SETTINGS_Only_Selected, do_pose=Global_Settings.BAKE_SETTINGS_Do_Pose, do_object=Global_Settings.BAKE_SETTINGS_Do_Object, do_visual_keying=Global_Settings.BAKE_SETTINGS_Do_Visual_Keying, do_constraint_clear=Global_Settings.BAKE_SETTINGS_Do_Constraint_Clear, do_parents_clear=Global_Settings.BAKE_SETTINGS_Do_Parent_Clear, do_clean=Global_Settings.BAKE_SETTINGS_Do_Clean)
-
-
+                                Baked_Action = anim_utils.bake_action_objects(
+                                    obj_act,
+                                    frames=frame,
+                                    bake_options=anim_utils.BakeOptions(
+                                        only_selected=Global_Settings.BAKE_SETTINGS_Only_Selected,
+                                        do_pose=Global_Settings.BAKE_SETTINGS_Do_Pose,
+                                        do_object=Global_Settings.BAKE_SETTINGS_Do_Object,
+                                        do_visual_keying=Global_Settings.BAKE_SETTINGS_Do_Visual_Keying,
+                                        do_constraint_clear=Global_Settings.BAKE_SETTINGS_Do_Constraint_Clear,
+                                        do_parents_clear=Global_Settings.BAKE_SETTINGS_Do_Parent_Clear,
+                                        do_clean=Global_Settings.BAKE_SETTINGS_Do_Clean,
+                                        do_location=Global_Settings.BAKE_SETTINGS_Location,
+                                        do_rotation=Global_Settings.BAKE_SETTINGS_Rotation,
+                                        do_scale=Global_Settings.BAKE_SETTINGS_Scale,
+                                        do_bbone=Global_Settings.BAKE_SETTINGS_BBone,
+                                        do_custom_props=Global_Settings.BAKE_SETTINGS_Custom_Properties,
+                                    ),
+                                )
+                                # Baked_Action = anim_utils.bake_action_objects(obj_act, frames=frame, bake_options)
 
                                 # if Global_Settings.Overwrite:
                                 #     duplicate_check = bpy.data.actions.get(action_name)
@@ -1073,8 +1182,6 @@ class GRT_Bake_Action_Bakery(bpy.types.Operator):
 
                                 Baked_Action[0].name = action_name
 
-
-
                                 if Baker.offset_keyframe_to_frame_one:
 
                                     start_frame = int(Baked_Action[0].frame_range[0])
@@ -1085,12 +1192,14 @@ class GRT_Bake_Action_Bakery(bpy.types.Operator):
 
                                 context.view_layer.update()
 
-
                                 if Global_Settings.Push_to_NLA:
-                                    deform_rig.animation_data.nla_tracks.new().strips.new(Baked_Action[0].name, int(Baked_Action[0].frame_range[0]), Baked_Action[0])
+                                    deform_rig.animation_data.nla_tracks.new().strips.new(
+                                        Baked_Action[0].name,
+                                        int(Baked_Action[0].frame_range[0]),
+                                        Baked_Action[0],
+                                    )
                                     # deform_rig.animation_data.nla_tracks.new().strips.new(Baked_Action[0].name, action.frame_range[0], Baked_Action[0])
                                     # deform_rig.animation_data.nla_tracks.new().strips.new(Baked_Action[0].name, 0, Baked_Action[0])
-
 
                         # for nla_track_pair in nla_track_state:
                         #     print(nla_track_pair[1])
@@ -1113,13 +1222,10 @@ class GRT_Bake_Action_Bakery(bpy.types.Operator):
                         # control_rig.animation_data.use_nla = CTRL_Save_Use_NLA
                         # deform_rig.animation_data.use_nla = DEF_Save_Use_NLA
 
-
-                        bpy.ops.object.mode_set(mode = 'OBJECT')
-                        bpy.ops.object.select_all(action='DESELECT')
+                        bpy.ops.object.mode_set(mode="OBJECT")
+                        bpy.ops.object.select_all(action="DESELECT")
                         deform_rig.select_set(True)
                         context.view_layer.objects.active = deform_rig
-
-
 
         if control_rig.animation_data:
 
@@ -1131,39 +1237,19 @@ class GRT_Bake_Action_Bakery(bpy.types.Operator):
             if DEF_Save_Use_NLA is not None:
                 deform_rig.animation_data.use_nla = DEF_Save_Use_NLA
 
+        return {"FINISHED"}
 
 
-        return {'FINISHED'}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-classes = [GRT_Action_Bakery_Set_Frame_Range_To_Action, GRT_Load_Action_Menu, GRT_Bake_Action_Bakery, GRT_Action_Bakery_List_Operator, GRT_UL_Action_Bakery_List, GRT_Action_Bakery_Property_Group, GRT_Action_Bakery_Global_Settings_Property_Group, GRT_PT_Action_Bakery]
+classes = [
+    GRT_Action_Bakery_Set_Frame_Range_To_Action,
+    GRT_Load_Action_Menu,
+    GRT_Bake_Action_Bakery,
+    GRT_Action_Bakery_List_Operator,
+    GRT_UL_Action_Bakery_List,
+    GRT_Action_Bakery_Property_Group,
+    GRT_Action_Bakery_Global_Settings_Property_Group,
+    GRT_PT_Action_Bakery,
+]
 
 
 def register():
@@ -1171,11 +1257,14 @@ def register():
     for cls in classes:
         bpy.utils.register_class(cls)
 
-
-    bpy.types.Scene.GRT_Action_Bakery = bpy.props.CollectionProperty(type=GRT_Action_Bakery_Property_Group)
+    bpy.types.Scene.GRT_Action_Bakery = bpy.props.CollectionProperty(
+        type=GRT_Action_Bakery_Property_Group
+    )
     bpy.types.Scene.GRT_Action_Bakery_Index = bpy.props.IntProperty()
 
-    bpy.types.Scene.GRT_Action_Bakery_Global_Settings = bpy.props.PointerProperty(type=GRT_Action_Bakery_Global_Settings_Property_Group)
+    bpy.types.Scene.GRT_Action_Bakery_Global_Settings = bpy.props.PointerProperty(
+        type=GRT_Action_Bakery_Global_Settings_Property_Group
+    )
 
 
 def unregister():
@@ -1185,6 +1274,7 @@ def unregister():
     del bpy.types.Scene.GRT_Action_Bakery
     del bpy.types.Scene.GRT_Action_Bakery_Index
     del bpy.types.Scene.GRT_Action_Bakery_Global_Settings
+
 
 if __name__ == "__main__":
     register()

@@ -1,15 +1,16 @@
 import bpy
 
-#Editing bone
+# Editing bone
 
 
 class GRT_Constraint_Toogle(bpy.types.Operator):
     """Constraint Toogle"""
+
     bl_idname = "gamerigtool.toogle_constraint"
     bl_label = "Toogle Constraints"
-    bl_options = {'REGISTER', 'UNDO'}
+    bl_options = {"REGISTER", "UNDO"}
 
-    mute : bpy.props.BoolProperty()
+    mute: bpy.props.BoolProperty()
     use_selected: bpy.props.BoolProperty()
 
     @classmethod
@@ -20,7 +21,6 @@ class GRT_Constraint_Toogle(bpy.types.Operator):
             return False
 
     def execute(self, context):
-
 
         for object in context.selected_objects:
 
@@ -40,18 +40,21 @@ class GRT_Constraint_Toogle(bpy.types.Operator):
                         for constraint in bone.constraints:
                             constraint.mute = self.mute
 
+        return {"FINISHED"}
 
-        return {'FINISHED'}
 
 classes = [GRT_Constraint_Toogle]
+
 
 def register():
     for cls in classes:
         bpy.utils.register_class(cls)
 
+
 def unregister():
     for cls in classes:
         bpy.utils.unregister_class(cls)
+
 
 if __name__ == "__main__":
     register()

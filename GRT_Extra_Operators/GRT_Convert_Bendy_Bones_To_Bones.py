@@ -1,21 +1,25 @@
 import bpy
 
 
-ENUM_Scope = [("SELECTED","Selected","Selected"), ("ALL","All","All")]
+ENUM_Scope = [("SELECTED", "Selected", "Selected"), ("ALL", "All", "All")]
+
 
 class GRT_Convert_Bendy_Bones_To_Bones(bpy.types.Operator):
-    """Convert Bendy Bones to Bones"""
+    """Convert Bendy Bones to Bones (Experimental)"""
+
     bl_idname = "gamerigtool.convert_bendy_bones_to_bones"
-    bl_label = "Convert Bendy Bones To Bones"
-    bl_options = {'REGISTER', 'UNDO'}
+    bl_label = "Convert Bendy Bones To Bones (Experimental)"
+    bl_options = {"REGISTER", "UNDO"}
 
     Scope: bpy.props.EnumProperty(items=ENUM_Scope)
     track_bone: bpy.props.BoolProperty(default=True)
     enable_stretch: bpy.props.BoolProperty(default=False)
     align_edit_bones: bpy.props.BoolProperty(default=True)
 
-    to_layer: bpy.props.IntProperty(default=31, max=31, min=0)
+    # to_layer: bpy.props.IntProperty(default=31, max=31, min=0)
     move_to_layer: bpy.props.BoolProperty(default=True)
+    #
+    layer_name: bpy.props.StringProperty(default="Bendy Bones")
 
     def draw(self, context):
         layout = self.layout
@@ -29,24 +33,21 @@ class GRT_Convert_Bendy_Bones_To_Bones(bpy.types.Operator):
         layout.prop(self, "move_to_layer", text="Move To Layer")
 
         if self.move_to_layer:
-            layout.prop(self, "to_layer", text="Layer")
+            layout.prop(self, "layer_name", text="Layer")
 
     @classmethod
     def poll(cls, context):
         if context.mode in ["OBJECT", "POSE"]:
             return True
 
-
     def invoke(self, context, event):
         if context.mode == "OBJECT":
 
             return context.window_manager.invoke_props_dialog(self)
 
-        if context.mode in ["EDIT_ARMATURE" , "POSE"]:
+        if context.mode in ["EDIT_ARMATURE", "POSE"]:
 
             return context.window_manager.invoke_props_dialog(self)
-
-
 
     def execute(self, context):
 
@@ -55,9 +56,15 @@ class GRT_Convert_Bendy_Bones_To_Bones(bpy.types.Operator):
         selected_objects = []
 
         if mode == "OBJECT":
-            selected_objects = [object for object in context.selected_objects if object.type == "ARMATURE"]
+            selected_objects = [
+                object
+                for object in context.selected_objects
+                if object.type == "ARMATURE"
+            ]
         if mode == "POSE":
-            selected_objects = [object for object in context.view_layer.objects if object.mode == "POSE"]
+            selected_objects = [
+                object for object in context.view_layer.objects if object.mode == "POSE"
+            ]
 
         armature_check = False
 
@@ -67,20 +74,19 @@ class GRT_Convert_Bendy_Bones_To_Bones(bpy.types.Operator):
                 bpy.context.view_layer.objects.active = object
 
                 if mode == "EDIT_ARMATURE":
-                    bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+                    bpy.ops.object.mode_set(mode="OBJECT", toggle=False)
 
                 if mode == "POSE":
-                    bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+                    bpy.ops.object.mode_set(mode="OBJECT", toggle=False)
 
-                bpy.ops.object.mode_set(mode='EDIT', toggle=False)
+                bpy.ops.object.mode_set(mode="EDIT", toggle=False)
                 break
 
         if armature_check:
 
-
             for object in selected_objects:
 
-                bpy.ops.object.mode_set(mode='EDIT', toggle=False)
+                bpy.ops.object.mode_set(mode="EDIT", toggle=False)
 
                 if mode == "OBJECT":
                     Bones = object.data.edit_bones
@@ -95,14 +101,24 @@ class GRT_Convert_Bendy_Bones_To_Bones(bpy.types.Operator):
                             Bones = [bone for bone in object.data.edit_bones]
 
                         if self.Scope == "SELECTED":
-                            Bones = [bone for bone in object.data.edit_bones if bone.select]
+                            Bones = [
+                                bone for bone in object.data.edit_bones if bone.select
+                            ]
 
                     if mode == "POSE":
                         if self.Scope == "ALL":
-                            Bones = [object.data.edit_bones.get(bone.name) for bone in object.data.bones if object.data.edit_bones.get(bone.name)]
+                            Bones = [
+                                object.data.edit_bones.get(bone.name)
+                                for bone in object.data.bones
+                                if object.data.edit_bones.get(bone.name)
+                            ]
 
                         if self.Scope == "SELECTED":
-                            Bones = [object.data.edit_bones.get(bone.name) for bone in object.data.bones if bone.select and object.data.edit_bones.get(bone.name)]
+                            Bones = [
+                                object.data.edit_bones.get(bone.name)
+                                for bone in object.data.bones
+                                if bone.select and object.data.edit_bones.get(bone.name)
+                            ]
 
                 Bone_Pairs = []
 
@@ -119,70 +135,93 @@ class GRT_Convert_Bendy_Bones_To_Bones(bpy.types.Operator):
 
                         for i in range(Bone.bbone_segments):
 
-                            bbone_mats.append(Bone.matrix @ PBone.bbone_segment_matrix(i,rest=True))
+                            bbone_mats.append(
+                                Bone.matrix @ PBone.bbone_segment_matrix(i, rest=True)
+                            )
 
                         for index, seg_mat in enumerate(bbone_mats):
-                            Bone_Name = Bone.name + "_bbone_segment_" + str(index).zfill(2)
+                            Bone_Name = (
+                                Bone.name + "_bbone_segment_" + str(index).zfill(2)
+                            )
                             Segment_Bone = Edit_Bones.new(Bone_Name)
                             Segment_Bone.matrix = seg_mat
                             Segment_Bone.length = PBone.length / Bone.bbone_segments
 
                             if self.move_to_layer:
 
-                                layers = [False for x in range(32)]
-                                layers[self.to_layer] = True
-                                Segment_Bone.layers = layers
+                                new_collection = object.data.collections.get(
+                                    self.layer_name
+                                )
 
-                                object.data.layers[self.to_layer] = True
+                                if not new_collection:
+                                    new_collection = object.data.collections.new(
+                                        self.layer_name
+                                    )
+
+                                new_collection.assign(Segment_Bone)
+                                new_collection.is_visible = True
 
                             Segment_Bone.bbone_x = Bone.bbone_x * 2
                             Segment_Bone.bbone_z = Bone.bbone_z * 2
 
                             BBone_Segment_Name.append(Segment_Bone.name)
 
-                        Bone_Pair = {"BendyBone": Bone.name, "Bones":BBone_Segment_Name}
+                        Bone_Pair = {
+                            "BendyBone": Bone.name,
+                            "Bones": BBone_Segment_Name,
+                        }
                         Bone_Pairs.append(Bone_Pair)
-
 
                 if self.align_edit_bones:
                     for Bone_Pair in Bone_Pairs:
                         Convert_Bones = Bone_Pair["Bones"]
                         Bendy_Bone = object.data.edit_bones.get(Bone_Pair["BendyBone"])
-                        Converted_Edit_Bones = [object.data.edit_bones.get(bone_name) for bone_name in Convert_Bones if object.data.edit_bones.get(bone_name)]
+                        Converted_Edit_Bones = [
+                            object.data.edit_bones.get(bone_name)
+                            for bone_name in Convert_Bones
+                            if object.data.edit_bones.get(bone_name)
+                        ]
 
                         if Bendy_Bone and len(Converted_Edit_Bones) > 0:
 
-                            for index, Converted_Edit_Bone in enumerate(Converted_Edit_Bones):
+                            for index, Converted_Edit_Bone in enumerate(
+                                Converted_Edit_Bones
+                            ):
 
-                                if len(Converted_Edit_Bones) > index+1:
+                                if len(Converted_Edit_Bones) > index + 1:
 
-                                    NextBone = Converted_Edit_Bones[index+1]
+                                    NextBone = Converted_Edit_Bones[index + 1]
                                     Converted_Edit_Bone.tail = NextBone.head
 
-
-
-                bpy.ops.object.mode_set(mode='POSE', toggle=False)
+                bpy.ops.object.mode_set(mode="POSE", toggle=False)
 
                 for Bone_Pair in Bone_Pairs:
                     Convert_Bones = Bone_Pair["Bones"]
                     Bendy_Bone = object.pose.bones.get(Bone_Pair["BendyBone"])
-                    Converted_Pose_Bones = [object.pose.bones.get(bone_name) for bone_name in Convert_Bones if object.pose.bones.get(bone_name)]
+                    Converted_Pose_Bones = [
+                        object.pose.bones.get(bone_name)
+                        for bone_name in Convert_Bones
+                        if object.pose.bones.get(bone_name)
+                    ]
 
                     if Bendy_Bone and len(Converted_Pose_Bones) > 0:
 
-                        for index, Converted_Pose_Bone in enumerate(Converted_Pose_Bones):
-
+                        for index, Converted_Pose_Bone in enumerate(
+                            Converted_Pose_Bones
+                        ):
 
                             Constraint = Converted_Pose_Bone.constraints.new("ARMATURE")
                             Target = Constraint.targets.new()
                             Target.target = object
                             Target.subtarget = Bendy_Bone.name
                             if self.track_bone:
-                                if len(Converted_Pose_Bones) > index+1:
+                                if len(Converted_Pose_Bones) > index + 1:
 
-                                    NextBone = Converted_Pose_Bones[index+1]
+                                    NextBone = Converted_Pose_Bones[index + 1]
 
-                                    Constraint = Converted_Pose_Bone.constraints.new("DAMPED_TRACK")
+                                    Constraint = Converted_Pose_Bone.constraints.new(
+                                        "DAMPED_TRACK"
+                                    )
                                     Constraint.target = object
                                     Constraint.subtarget = NextBone.name
                                     # Constraint.track_axis = "TRACK_Y"
@@ -193,7 +232,11 @@ class GRT_Convert_Bendy_Bones_To_Bones(bpy.types.Operator):
                                     for c in Bendy_Bone.constraints:
                                         if c.type == "STRETCH_TO":
                                             if c.subtarget:
-                                                Constraint = Converted_Pose_Bone.constraints.new("DAMPED_TRACK")
+                                                Constraint = (
+                                                    Converted_Pose_Bone.constraints.new(
+                                                        "DAMPED_TRACK"
+                                                    )
+                                                )
                                                 Constraint.target = object
                                                 Constraint.subtarget = c.subtarget
                                                 # Constraint.track_axis = "TRACK_Y"
@@ -207,7 +250,11 @@ class GRT_Convert_Bendy_Bones_To_Bones(bpy.types.Operator):
 
                                         for child in Bendy_Bone.children:
                                             if child.head == Bendy_Bone.tail:
-                                                Constraint = Converted_Pose_Bone.constraints.new("DAMPED_TRACK")
+                                                Constraint = (
+                                                    Converted_Pose_Bone.constraints.new(
+                                                        "DAMPED_TRACK"
+                                                    )
+                                                )
                                                 Constraint.target = object
                                                 Constraint.subtarget = child.name
                                                 use_bendy_tail = False
@@ -216,13 +263,19 @@ class GRT_Convert_Bendy_Bones_To_Bones(bpy.types.Operator):
                                                 break
 
                                     if use_bendy_tail:
-                                        Constraint = Converted_Pose_Bone.constraints.new("DAMPED_TRACK")
+                                        Constraint = (
+                                            Converted_Pose_Bone.constraints.new(
+                                                "DAMPED_TRACK"
+                                            )
+                                        )
                                         Constraint.target = object
                                         Constraint.subtarget = Bendy_Bone.name
                                         Constraint.head_tail = 1
 
                             if not self.enable_stretch:
-                                Constraint = Converted_Pose_Bone.constraints.new("LIMIT_SCALE")
+                                Constraint = Converted_Pose_Bone.constraints.new(
+                                    "LIMIT_SCALE"
+                                )
 
                                 Constraint.use_min_x = True
                                 Constraint.use_min_y = True
@@ -237,13 +290,7 @@ class GRT_Convert_Bendy_Bones_To_Bones(bpy.types.Operator):
                                 Constraint.max_y = 1.0
                                 Constraint.max_z = 1.0
 
-
-
-            bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
-
-
-
-
+            bpy.ops.object.mode_set(mode="OBJECT", toggle=False)
 
             # if mode in ["EDIT_ARMATURE", "POSE"]:
             #
@@ -263,30 +310,29 @@ class GRT_Convert_Bendy_Bones_To_Bones(bpy.types.Operator):
             #                     if Bone.select:
             #                         Bone.parent = None
             if mode == "POSE":
-                bpy.ops.object.mode_set(mode='POSE', toggle=False)
+                bpy.ops.object.mode_set(mode="POSE", toggle=False)
             if mode == "OBJECT":
-                bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+                bpy.ops.object.mode_set(mode="OBJECT", toggle=False)
             if mode == "EDIT_ARMATURE":
-                bpy.ops.object.mode_set(mode='EDIT', toggle=False)
+                bpy.ops.object.mode_set(mode="EDIT", toggle=False)
 
         context.view_layer.update()
 
-        return {'FINISHED'}
-
-
-
-
+        return {"FINISHED"}
 
 
 classes = [GRT_Convert_Bendy_Bones_To_Bones]
+
 
 def register():
     for cls in classes:
         bpy.utils.register_class(cls)
 
+
 def unregister():
     for cls in classes:
         bpy.utils.unregister_class(cls)
+
 
 if __name__ == "__main__":
     register()

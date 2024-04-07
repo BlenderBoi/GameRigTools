@@ -18,24 +18,22 @@ def update_panel(self, context):
         if "bl_rna" in GRT_Action_Bakery.GRT_PT_Action_Bakery.__dict__:
             bpy.utils.unregister_class(GRT_Action_Bakery.GRT_PT_Action_Bakery)
 
-        GRT_Action_Bakery.GRT_PT_Action_Bakery.bl_category = addon_preferences.action_bakery_panel_name
+        GRT_Action_Bakery.GRT_PT_Action_Bakery.bl_category = (
+            addon_preferences.action_bakery_panel_name
+        )
         bpy.utils.register_class(GRT_Action_Bakery.GRT_PT_Action_Bakery)
-
 
         if "bl_rna" in Deform_Rig_Panel.CGD_PT_Deform_Rig_Side_Panel.__dict__:
             bpy.utils.unregister_class(Deform_Rig_Panel.CGD_PT_Deform_Rig_Side_Panel)
 
-
-        Deform_Rig_Panel.CGD_PT_Deform_Rig_Side_Panel.bl_category = addon_preferences.game_rig_tool_panel_name
+        Deform_Rig_Panel.CGD_PT_Deform_Rig_Side_Panel.bl_category = (
+            addon_preferences.game_rig_tool_panel_name
+        )
         bpy.utils.register_class(Deform_Rig_Panel.CGD_PT_Deform_Rig_Side_Panel)
-
-
-
 
     except Exception as e:
         print("\n[{}]\n{}\n\nError:\n{}".format(__name__, message, e))
         pass
-
 
 
 class CGD_user_preferences(bpy.types.AddonPreferences):
@@ -51,8 +49,12 @@ class CGD_user_preferences(bpy.types.AddonPreferences):
     show_action_bakery: bpy.props.BoolProperty(default=False)
     toogle_constraints: bpy.props.BoolProperty(default=False)
 
-    game_rig_tool_panel_name: bpy.props.StringProperty(default="Game Rig Tool", update=update_panel)
-    action_bakery_panel_name: bpy.props.StringProperty(default="Game Rig Tool", update=update_panel)
+    game_rig_tool_panel_name: bpy.props.StringProperty(
+        default="Game Rig Tool", update=update_panel
+    )
+    action_bakery_panel_name: bpy.props.StringProperty(
+        default="Game Rig Tool", update=update_panel
+    )
 
     use_selected: bpy.props.BoolProperty(default=False)
 
@@ -60,29 +62,34 @@ class CGD_user_preferences(bpy.types.AddonPreferences):
 
     OPERATOR_APPLYMENU_Apply_Armature_Scale: bpy.props.BoolProperty(default=False)
 
-
     def draw(self, context):
         layout = self.layout
         layout.prop(self, "action_bakery_panel_name", text="Game Rig Tool Tab")
         layout.prop(self, "game_rig_tool_panel_name", text="Utility Tab")
 
-
         layout.prop(self, "toogle_constraints", text="Top Bar Toogle Constraint")
 
         layout.label(text="Operators Options")
-        layout.prop(self, "OPERATOR_APPLYMENU_Apply_Armature_Scale", text="Apply Menu: Apply Armature Scale")
+        layout.prop(
+            self,
+            "OPERATOR_APPLYMENU_Apply_Armature_Scale",
+            text="Apply Menu: Apply Armature Scale",
+        )
 
-
-        if Utility.draw_subpanel(self, self.show_credits, "show_credits", "Credit", layout):
+        if Utility.draw_subpanel(
+            self, self.show_credits, "show_credits", "Credit", layout
+        ):
             box = layout.box()
             box.label(text="Author: Xin", icon="USER")
 
             box.label(text="Contribution: Apply armature scale", icon="ADD")
-            box.label(text="Source: https://gitlab.com/x190/apply_armature_scale", icon="LINKED")
+            box.label(
+                text="Source: https://gitlab.com/x190/apply_armature_scale",
+                icon="LINKED",
+            )
 
 
 classes = [CGD_user_preferences]
-
 
 
 def register():
@@ -90,7 +97,6 @@ def register():
         bpy.utils.register_class(cls)
 
     update_panel(None, bpy.context)
-
 
 
 def unregister():
