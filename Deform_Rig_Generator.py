@@ -356,13 +356,14 @@ class GRT_Generate_Game_Rig(bpy.types.Operator):
                 vis = object.hide_get()
                 vis_view = object.hide_viewport
 
-                object.hide_set(False)
                 object.hide_viewport = False
+                object.hide_set(False)
+                context.view_layer.objects.active = object
 
                 bpy.ops.object.mode_set(mode="OBJECT")
 
-                object.hide_set(vis)
                 object.hide_viewport = vis_view
+                object.hide_set(vis)
 
                 ORI_Edit_Bones = object.data.bones
 
