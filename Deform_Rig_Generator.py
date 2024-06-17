@@ -8,13 +8,23 @@ addon_directory = os.path.dirname(script_file)
 addon_name = os.path.basename(addon_directory)
 
 
-constraint_type = [("TRANSFORM","Copy Transform","Copy Transforms"),("LOTROT","Copy Location & Copy Rotation","Lot Rot"), ("NONE", "None (Do not Constraint)", "None")]
-ENUM_Extract_Mode = [("SELECTED","Selected","Selected"),("DEFORM","Deform","Deform"), ("SELECTED_DEFORM", "Selected Deform", "Selected Deform"), ("DEFORM_AND_SELECTED", "Deform and Selected", "Deform and Selected")]
+constraint_type = [
+    ("TRANSFORM", "Copy Transform", "Copy Transforms"),
+    ("LOTROT", "Copy Location & Copy Rotation", "Lot Rot"),
+    ("NONE", "None (Do not Constraint)", "None"),
+]
+ENUM_Extract_Mode = [
+    ("SELECTED", "Selected", "Selected"),
+    ("DEFORM", "Deform", "Deform"),
+    ("SELECTED_DEFORM", "Selected Deform", "Selected Deform"),
+    ("DEFORM_AND_SELECTED", "Deform and Selected", "Deform and Selected"),
+]
 
 
 def get_deform(bone, bones):
     bone_name = bone.name.replace("ORG-", "DEF-")
     return bones.get(bone_name)
+
 
 def find_first_def(bone, bones):
     if bone:
@@ -25,12 +35,11 @@ def find_first_def(bone, bones):
 
 
 def find_deform(bone, bones):
-    
     if not "DEF-" in bone.name:
         new_name = bone.name.replace("ORG-", "DEF-")
         return bones.get(new_name)
 
-    
+
 def get_root(bone):
     if bone.parent:
         return get_root(bone.parent)
@@ -38,27 +47,32 @@ def get_root(bone):
         return bone
 
 
-ENUM_Hierarchy_Mode = [("KEEP_EXISTING","Keep Existing","Keep Existing"),("RIGIFY","Rigify Hierarchy Fix","Rigify Hierarchy Fix"), ("FLAT", "Flat Hierarchy", "Flat Hierarchy")]
+ENUM_Hierarchy_Mode = [
+    ("KEEP_EXISTING", "Keep Existing", "Keep Existing"),
+    ("RIGIFY", "Rigify Hierarchy Fix", "Rigify Hierarchy Fix"),
+    ("FLAT", "Flat Hierarchy", "Flat Hierarchy"),
+]
+
 
 class GRT_Generate_Game_Rig(bpy.types.Operator):
     """This will Generate a Deform Game Rig based on the step in CGDive Video"""
+
     bl_idname = "gamerigtool.generate_game_rig"
     bl_label = "Generate Game Rig"
-    bl_options = {'UNDO', 'PRESET'}
-
+    bl_options = {"UNDO", "PRESET"}
 
     Use_Regenerate_Rig: bpy.props.BoolProperty(default=False)
     Use_Legacy: bpy.props.BoolProperty(default=False)
 
-    Hierarchy_Mode: bpy.props.EnumProperty(items=ENUM_Hierarchy_Mode, default="KEEP_EXISTING")
-
+    Hierarchy_Mode: bpy.props.EnumProperty(
+        items=ENUM_Hierarchy_Mode, default="KEEP_EXISTING"
+    )
 
     SUB_Generation_Settings: bpy.props.BoolProperty(default=True)
     SUB_Hierarchy_Settings: bpy.props.BoolProperty(default=False)
     SUB_Constraints_Settings: bpy.props.BoolProperty(default=False)
     SUB_Extract_Settings: bpy.props.BoolProperty(default=False)
     SUB_Binding_Settings: bpy.props.BoolProperty(default=False)
-
 
     Extract_Mode: bpy.props.EnumProperty(items=ENUM_Extract_Mode, default="DEFORM")
     Copy_Root_Scale: bpy.props.BoolProperty(default=False)
@@ -71,12 +85,12 @@ class GRT_Generate_Game_Rig(bpy.types.Operator):
 
     Constraint_Type: bpy.props.EnumProperty(items=constraint_type, default="LOTROT")
 
-    Animator_Remove_BBone : bpy.props.BoolProperty(default=False)
-    Animator_Disable_Deform : bpy.props.BoolProperty(default=False)
+    Animator_Remove_BBone: bpy.props.BoolProperty(default=False)
+    Animator_Disable_Deform: bpy.props.BoolProperty(default=False)
 
     Parent_To_Deform_Rig: bpy.props.BoolProperty(default=True)
     Deform_Armature_Name: bpy.props.StringProperty()
-    Deform_Remove_BBone : bpy.props.BoolProperty(default=True)
+    Deform_Remove_BBone: bpy.props.BoolProperty(default=True)
 
     Deform_Move_Bone_to_GRT_Collection: bpy.props.BoolProperty(default=True)
     Deform_GRT_Collection_Name: bpy.props.StringProperty(default="Deform")
@@ -99,39 +113,27 @@ class GRT_Generate_Game_Rig(bpy.types.Operator):
     Show_Advanced: bpy.props.BoolProperty(default=False)
 
     Rigify_Hierarchy_Fix: bpy.props.BoolProperty(default=False)
-#    RIGIFY_Disable_Stretch: bpy.props.BoolProperty(default=True)
+    #    RIGIFY_Disable_Stretch: bpy.props.BoolProperty(default=True)
 
     def invoke(self, context, event):
-
         scn = context.scene
         Global_Settings = scn.GRT_Action_Bakery_Global_Settings
         Action_Bakery = scn.GRT_Action_Bakery
 
         control_rig = Global_Settings.Source_Armature
         deform_rig = Global_Settings.Target_Armature
-    
 
         if deform_rig:
             self.Deform_Armature_Name = deform_rig.name
         elif control_rig:
             self.Deform_Armature_Name = control_rig.name + "_deform"
 
-
-
         return context.window_manager.invoke_props_dialog(self)
 
-
     def draw(self, context):
-
-
-
         layout = self.layout
 
         scn = context.scene
-
-        
-
-
 
         scn = context.scene
         Global_Settings = scn.GRT_Action_Bakery_Global_Settings
@@ -140,42 +142,66 @@ class GRT_Generate_Game_Rig(bpy.types.Operator):
         control_rig = Global_Settings.Source_Armature
         deform_rig = Global_Settings.Target_Armature
 
-
-
-        if Utility.draw_subpanel(self, self.SUB_Generation_Settings, "SUB_Generation_Settings", "Generation Settings", layout):
+        if Utility.draw_subpanel(
+            self,
+            self.SUB_Generation_Settings,
+            "SUB_Generation_Settings",
+            "Generation Settings",
+            layout,
+        ):
             box = layout.box()
             box.separator()
 
             if self.Use_Regenerate_Rig:
-
-                box.prop(Global_Settings,"Target_Armature", text="Game Rig", icon="ARMATURE_DATA")
-
+                box.prop(
+                    Global_Settings,
+                    "Target_Armature",
+                    text="Game Rig",
+                    icon="ARMATURE_DATA",
+                )
 
             else:
                 box.prop(self, "Deform_Armature_Name", text="Name")
 
             if not self.Use_Legacy:
-                box.prop(self, "Use_Regenerate_Rig", text="Regenerate Rig", icon="FILE_REFRESH")
+                box.prop(
+                    self,
+                    "Use_Regenerate_Rig",
+                    text="Regenerate Rig",
+                    icon="FILE_REFRESH",
+                )
             box.separator()
 
         layout.separator()
 
-        if Utility.draw_subpanel(self, self.SUB_Hierarchy_Settings, "SUB_Hierarchy_Settings", "Hierarchy Settings", layout):
+        if Utility.draw_subpanel(
+            self,
+            self.SUB_Hierarchy_Settings,
+            "SUB_Hierarchy_Settings",
+            "Hierarchy Settings",
+            layout,
+        ):
             box = layout.box()
             box.separator()
-        #layout.separator()
-            #box.label(text="Hierarchy Mode")
+            # layout.separator()
+            # box.label(text="Hierarchy Mode")
             box.prop(self, "Hierarchy_Mode", text="")
-            #layout.prop(self, "Rigify_Hierarchy_Fix", text="Rigify Hierarchy Fix (FOR RIGIFY ONLY)")
-            #layout.prop(self, "Flat_Hierarchy", text="Flat Hierarchy")
+            # layout.prop(self, "Rigify_Hierarchy_Fix", text="Rigify Hierarchy Fix (FOR RIGIFY ONLY)")
+            # layout.prop(self, "Flat_Hierarchy", text="Flat Hierarchy")
             box.prop(self, "Disconnect_Bone", text="Disconnect Bones")
             box.separator()
         layout.separator()
 
-        if Utility.draw_subpanel(self, self.SUB_Constraints_Settings, "SUB_Constraints_Settings", "Constraints Settings", layout):
+        if Utility.draw_subpanel(
+            self,
+            self.SUB_Constraints_Settings,
+            "SUB_Constraints_Settings",
+            "Constraints Settings",
+            layout,
+        ):
             box = layout.box()
             box.separator()
-            #box.label(text="Constraint Type:")
+            # box.label(text="Constraint Type:")
 
             box.prop(self, "Constraint_Type", text="")
             if self.Constraint_Type == "LOTROT":
@@ -186,87 +212,120 @@ class GRT_Generate_Game_Rig(bpy.types.Operator):
                         box.label(text="Root Bone Name")
                         row = box.row(align=True)
                         if self.Root_Bone_Picker:
-                            row.prop_search(self, "Root_Bone_Name", control_rig.data, "bones", text="")
-    
+                            row.prop_search(
+                                self,
+                                "Root_Bone_Name",
+                                control_rig.data,
+                                "bones",
+                                text="",
+                            )
+
                         else:
                             row.prop(self, "Root_Bone_Name", text="")
                         row.prop(self, "Root_Bone_Picker", text="", icon="EYEDROPPER")
             box.separator()
         layout.separator()
-        if Utility.draw_subpanel(self, self.SUB_Extract_Settings, "SUB_Extract_Settings", "Extract Settings", layout):
+        if Utility.draw_subpanel(
+            self,
+            self.SUB_Extract_Settings,
+            "SUB_Extract_Settings",
+            "Extract Settings",
+            layout,
+        ):
             box = layout.box()
             box.separator()
-            #box.label(text="Extract Mode:")
+            # box.label(text="Extract Mode:")
             box.prop(self, "Extract_Mode", text="")
 
             box.separator()
         layout.separator()
 
-        if Utility.draw_subpanel(self, self.SUB_Binding_Settings, "SUB_Binding_Settings", "Binding Settings", layout):
+        if Utility.draw_subpanel(
+            self,
+            self.SUB_Binding_Settings,
+            "SUB_Binding_Settings",
+            "Binding Settings",
+            layout,
+        ):
             box = layout.box()
             box.separator()
             box.prop(self, "Deform_Bind_to_Deform_Rig", text="Bind to Game Rig")
 
             if self.Deform_Bind_to_Deform_Rig:
-                box.prop(self, "Parent_To_Deform_Rig", text="Parent Mesh Object to Game Rig")
+                box.prop(
+                    self, "Parent_To_Deform_Rig", text="Parent Mesh Object to Game Rig"
+                )
             box.separator()
-
-
 
         layout.separator()
 
-        if Utility.draw_subpanel(self, self.Show_Advanced, "Show_Advanced", "Advanced", layout):
-
-
-
-
-
+        if Utility.draw_subpanel(
+            self, self.Show_Advanced, "Show_Advanced", "Advanced", layout
+        ):
             box = layout.box()
             box.separator()
             box.label(text="Control Rig")
             box.prop(self, "Animator_Remove_BBone", text="Remove BBone")
-
 
             box.separator()
 
             box.label(text="Game Rig")
 
             box2 = box.box()
-            box2.prop(self, "Deform_Move_Bone_to_GRT_Collection", text="Move Bones to Collection")
+            box2.prop(
+                self,
+                "Deform_Move_Bone_to_GRT_Collection",
+                text="Move Bones to Collection",
+            )
             if self.Deform_Move_Bone_to_GRT_Collection:
                 box2.prop(self, "Deform_GRT_Collection_Name", text="")
-                box2.prop(self,"Deform_Clear_Existing_Collections", text="Clear Existing Collections")
-
+                box2.prop(
+                    self,
+                    "Deform_Clear_Existing_Collections",
+                    text="Clear Existing Collections",
+                )
 
             box.prop(self, "Deform_Remove_BBone", text="Remove BBone")
 
-            box.prop(self, "Deform_Set_Inherit_Rotation_True", text="Set Inherit Rotation True")
-            box.prop(self, "Deform_Set_Inherit_Scale_Full", text="Set Inherit Scale Full")
-            box.prop(self, "Deform_Set_Local_Location_True", text="Set Local Location Bone Setting True")
+            box.prop(
+                self,
+                "Deform_Set_Inherit_Rotation_True",
+                text="Set Inherit Rotation True",
+            )
+            box.prop(
+                self, "Deform_Set_Inherit_Scale_Full", text="Set Inherit Scale Full"
+            )
+            box.prop(
+                self,
+                "Deform_Set_Local_Location_True",
+                text="Set Local Location Bone Setting True",
+            )
 
-            box.prop(self, "Deform_Remove_Non_Deform_Bone", text="Remove Non Deform / Non Selected Bones")
+            box.prop(
+                self,
+                "Deform_Remove_Non_Deform_Bone",
+                text="Remove Non Deform / Non Selected Bones",
+            )
 
             box.prop(self, "Deform_Unlock_Transform", text="Unlock Transform")
             box.prop(self, "Deform_Remove_Shape", text="Remove Bone Shapes")
             box.prop(self, "Deform_Remove_All_Constraints", text="Remove Constraints")
 
-
             # layout.prop(self, "Deform_Copy_Transform", text="Constrain Deform Rig to Animation Rig")
-
-
 
             # layout.prop(self, "Deform_Bind_to_Deform_Rig", text="Bind to Deform Rig")
             # if self.Deform_Bind_to_Deform_Rig:
             #     layout.prop(self, "Parent_To_Deform_Rig", text="Parent Mesh Object to Deform Rig")
 
-            box.prop(self, "Remove_Animation_Data", text="Remove Animation Data & Drivers")
+            box.prop(
+                self, "Remove_Animation_Data", text="Remove Animation Data & Drivers"
+            )
             box.prop(self, "Remove_Custom_Properties", text="Remove Custom Properties")
             box.separator()
-#        layout.prop(self, "RIGIFY_Disable_Stretch", text="Disable Rigify Stretch")
 
+    #        layout.prop(self, "RIGIFY_Disable_Stretch", text="Disable Rigify Stretch")
 
     def execute(self, context):
-
         object = context.object
 
         scn = context.scene
@@ -285,8 +344,6 @@ class GRT_Generate_Game_Rig(bpy.types.Operator):
         if self.Hierarchy_Mode == "FLAT":
             self.Rigify_Hierarchy_Fix = False
             self.Flat_Hierarchy = True
-            
-
 
         if not self.Use_Legacy:
             # if self.Use_Regenerate_Rig:
@@ -294,23 +351,26 @@ class GRT_Generate_Game_Rig(bpy.types.Operator):
 
             object = control_rig
 
-
         if object:
-
             if object.type == "ARMATURE":
+                vis = object.hide_get()
+                vis_view = object.hide_viewport
 
-                bpy.ops.object.mode_set(mode = 'OBJECT')
+                object.hide_set(False)
+                object.hide_viewport = False
+
+                bpy.ops.object.mode_set(mode="OBJECT")
+
+                object.hide_set(vis)
+                object.hide_viewport = vis_view
 
                 ORI_Edit_Bones = object.data.bones
 
                 for bone in ORI_Edit_Bones:
-
                     if self.Animator_Remove_BBone:
                         bone.bbone_segments = 0
 
-    #                if self.Animator_Disable_Deform:
-
-
+                #                if self.Animator_Disable_Deform:
 
                 game_rig = None
 
@@ -331,27 +391,23 @@ class GRT_Generate_Game_Rig(bpy.types.Operator):
                 game_rig.data = object.data.copy()
 
                 if not bpy.context.collection.objects.get(game_rig.name):
-
                     bpy.context.collection.objects.link(game_rig)
 
-                bpy.ops.object.select_all(action='DESELECT')
+                bpy.ops.object.select_all(action="DESELECT")
                 game_rig.select_set(True)
                 context.view_layer.objects.active = game_rig
-                bpy.ops.object.mode_set(mode = 'EDIT')
+                bpy.ops.object.mode_set(mode="EDIT")
 
                 Edit_Bones = game_rig.data.edit_bones
 
                 if self.Rigify_Hierarchy_Fix:
                     for bone in Edit_Bones:
-
-
                         if bone.use_deform:
                             if bone.parent:
                                 if not bone.parent.use_deform:
                                     recursive_parent = bone.parent_recursive
-                                    
+
                                     for f in recursive_parent:
-                                        
                                         if f.use_deform:
                                             bone.parent = f
                                             break
@@ -362,8 +418,6 @@ class GRT_Generate_Game_Rig(bpy.types.Operator):
                                                     if b.use_deform:
                                                         bone.parent = b
                                                         break
-
-
 
                                 # if bone.name == bone.parent.name.replace("ORG-", "DEF-"):
                                 #     if bone.parent.parent:
@@ -384,17 +438,10 @@ class GRT_Generate_Game_Rig(bpy.types.Operator):
                                 #                     if parent_bone.use_deform:
                                 #                         bone.parent = parent_bone
 
-
-
-
-
-
                 if self.Remove_Animation_Data:
-
                     game_rig.animation_data_clear()
                     game_rig.data.animation_data_clear()
 
-                    
                     # for i, layer in enumerate(game_rig.data.layers):
                     #     if i == 0:
                     #         game_rig.data.layers[i] = True
@@ -402,7 +449,6 @@ class GRT_Generate_Game_Rig(bpy.types.Operator):
                     #         game_rig.data.layers[i] = False
 
                 for bone in Edit_Bones:
-
                     if self.Flat_Hierarchy:
                         bone.parent = None
                     if self.Disconnect_Bone:
@@ -421,24 +467,29 @@ class GRT_Generate_Game_Rig(bpy.types.Operator):
                         bone.use_inherit_rotation = True
 
                     if self.Deform_Set_Local_Location_True:
-                         bone.use_local_location = True
+                        bone.use_local_location = True
 
                     if self.Deform_Set_Inherit_Scale_Full:
-                         bone.inherit_scale = "FULL"
+                        bone.inherit_scale = "FULL"
 
                     if self.Deform_Move_Bone_to_GRT_Collection:
                         if self.Deform_Clear_Existing_Collections:
                             while len(game_rig.data.collections) > 0:
-                                game_rig.data.collections.remove(game_rig.data.collections[0])
-                            
-                        new_collection = game_rig.data.collections.get(self.Deform_GRT_Collection_Name)
+                                game_rig.data.collections.remove(
+                                    game_rig.data.collections[0]
+                                )
+
+                        new_collection = game_rig.data.collections.get(
+                            self.Deform_GRT_Collection_Name
+                        )
 
                         if not new_collection:
-                            new_collection = game_rig.data.collections.new(self.Deform_GRT_Collection_Name)
+                            new_collection = game_rig.data.collections.new(
+                                self.Deform_GRT_Collection_Name
+                            )
 
                         new_collection.assign(bone)
                         new_collection.is_visible = True
-
 
                         # for i, layer in enumerate(bone.layers):
                         #     if i == 0:
@@ -464,8 +515,7 @@ class GRT_Generate_Game_Rig(bpy.types.Operator):
                             if not bone.use_deform and not bone.select:
                                 Edit_Bones.remove(bone)
 
-
-                bpy.ops.object.mode_set(mode = 'POSE')
+                bpy.ops.object.mode_set(mode="POSE")
                 game_rig.data.bones.update()
 
                 if self.Remove_Custom_Properties:
@@ -482,7 +532,6 @@ class GRT_Generate_Game_Rig(bpy.types.Operator):
                 Pose_Bones = game_rig.pose.bones
 
                 for bone in Pose_Bones:
-
                     if self.Remove_Custom_Properties:
                         if bone.get("_RNA_UI"):
                             for property in bone["_RNA_UI"]:
@@ -526,7 +575,6 @@ class GRT_Generate_Game_Rig(bpy.types.Operator):
                         constraint.subtarget = object.data.bones.get(bone.name).name
 
                         if self.Copy_Root_Scale:
-
                             root = None
 
                             if self.Auto_Find_Root:
@@ -534,18 +582,15 @@ class GRT_Generate_Game_Rig(bpy.types.Operator):
                             else:
                                 root = object.data.bones.get(self.Root_Bone_Name)
 
-        
                             if root:
                                 constraint = bone.constraints.new("COPY_SCALE")
                                 constraint.target = object
                                 constraint.subtarget = root.name
 
-
                     if self.Constraint_Type == "NONE":
                         pass
 
-
-                bpy.ops.object.mode_set(mode = 'OBJECT')
+                bpy.ops.object.mode_set(mode="OBJECT")
                 if self.Deform_Bind_to_Deform_Rig:
                     for obj in bpy.data.objects:
                         for modifier in obj.modifiers:
@@ -554,17 +599,18 @@ class GRT_Generate_Game_Rig(bpy.types.Operator):
                                     modifier.object = game_rig
                                     if self.Parent_To_Deform_Rig:
                                         obj.parent = game_rig
-                                        obj.matrix_parent_inverse = game_rig.matrix_world.inverted()
+                                        obj.matrix_parent_inverse = (
+                                            game_rig.matrix_world.inverted()
+                                        )
 
             for bone in object.data.bones:
                 if self.Animator_Disable_Deform:
-
                     bone.use_deform = False
 
-        return {'FINISHED'}
+        return {"FINISHED"}
+
 
 def draw_item(self, context):
-
     layout = self.layout
     row = layout.row(align=True)
 
@@ -572,7 +618,6 @@ def draw_item(self, context):
 
     if addon_preferences.toogle_constraints:
         if context.mode == "POSE":
-
             operator = row.operator("gamerigtool.toogle_constraint", text="Mute")
             operator.mute = True
             operator.use_selected = addon_preferences.use_selected
@@ -581,17 +626,15 @@ def draw_item(self, context):
             operator.mute = False
             operator.use_selected = addon_preferences.use_selected
 
-            row.prop(addon_preferences, "use_selected", text="", icon="RESTRICT_SELECT_OFF")
+            row.prop(
+                addon_preferences, "use_selected", text="", icon="RESTRICT_SELECT_OFF"
+            )
+
 
 classes = [GRT_Generate_Game_Rig]
 
 
-
-
-
 def register():
-
-
     bpy.types.VIEW3D_HT_header.append(draw_item)
 
     for cls in classes:
@@ -599,7 +642,6 @@ def register():
 
 
 def unregister():
-
     bpy.types.VIEW3D_HT_header.remove(draw_item)
 
     for cls in classes:

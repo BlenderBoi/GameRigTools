@@ -8,14 +8,12 @@ addon_name = os.path.basename(addon_directory)
 
 
 def draw_armature_visibility_options(self, context, layout):
-
     addon_preferences = context.preferences.addons[addon_name].preferences
 
     object = context.object
 
     if object:
         if object.type == "ARMATURE":
-
             layout = layout.box()
 
             if Utility.draw_subpanel(
@@ -25,7 +23,6 @@ def draw_armature_visibility_options(self, context, layout):
                 context.object.name,
                 layout,
             ):
-
                 layout.prop(object.data, "display_type", text="Display As")
                 layout.prop(object.data, "show_names", text="Names")
                 layout.prop(object.data, "show_bone_custom_shapes", text="Shapes")
@@ -167,6 +164,19 @@ def draw_panel(self, context, layout):
     subheader, subpanel = layout.panel("grt_utility_tool", default_closed=False)
     subheader.label(text="Utility Tool", icon="MODIFIER")
     if subpanel:
+        row = subpanel.row(align=True)
+
+        operator = row.operator(
+            "gamerigtool.toogle_constraint", text="Mute", icon="HIDE_ON"
+        )
+        operator.mute = True
+        operator.use_selected = addon_preferences.use_selected
+
+        operator = row.operator(
+            "gamerigtool.toogle_constraint", text="Unmute", icon="HIDE_OFF"
+        )
+        operator.mute = False
+        operator.use_selected = addon_preferences.use_selected
 
         # subpanel.separator()
         # subpanel.label(text="Utility Tool", icon="MODIFIER")
@@ -255,7 +265,6 @@ def draw_panel(self, context, layout):
 
 
 class CGD_PT_Deform_Rig_Side_Panel(bpy.types.Panel):
-
     bl_label = "GRT: Utility Tool"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
@@ -293,7 +302,6 @@ classes = [CGD_PT_Deform_Rig_Side_Panel]
 
 
 def register():
-
     for cls in classes:
         bpy.utils.register_class(cls)
 
