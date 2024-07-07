@@ -955,7 +955,7 @@ class GRT_Action_Bakery_Global_Settings_Property_Group(bpy.types.PropertyGroup):
 
     Show_Action_Bakery: bpy.props.BoolProperty(default=False)
 
-    GLOBAL_Clear_Transform_Before_Bake: bpy.props.BoolProperty(default=True)
+    GLOBAL_Clear_Transform_Before_Bake: bpy.props.BoolProperty(default=False)
 
 
 def Change_to_Baked_Name(context, item):
