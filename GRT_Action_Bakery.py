@@ -436,7 +436,8 @@ class GRT_PT_Action_Bakery(bpy.types.Panel):
                     depress=True,
                 )
                 operator.mute = True
-                operator.use_selected = addon_preferences.use_selected
+                # operator.use_selected = addon_preferences.use_selected
+                operator.use_selected = False
                 # row.prop(
                 #     Global_Settings, "Connection", text="Connect", icon="CONSTRAINT_BONE"
                 # )
@@ -448,7 +449,8 @@ class GRT_PT_Action_Bakery(bpy.types.Panel):
                     depress=False,
                 )
                 operator.mute = False
-                operator.use_selected = addon_preferences.use_selected
+                # operator.use_selected = addon_preferences.use_selected
+                operator.use_selected = False
 
                 if any(constraint_state):
                     row = layout.row(align=True)
