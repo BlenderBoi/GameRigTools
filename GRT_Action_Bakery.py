@@ -398,24 +398,66 @@ class GRT_PT_Action_Bakery(bpy.types.Panel):
 
         row = layout.row(align=True)
 
-        operator = row.operator(
-            "gamerigtool.toogle_game_rig_constraint", text="Mute", icon="HIDE_ON"
-        )
-        operator.mute = True
-        operator.use_selected = addon_preferences.use_selected
-
-        operator = row.operator(
-            "gamerigtool.toogle_game_rig_constraint", text="Unmute", icon="HIDE_OFF"
-        )
-        operator.mute = False
-        operator.use_selected = addon_preferences.use_selected
-
-        row.prop(addon_preferences, "use_selected", text="", icon="RESTRICT_SELECT_OFF")
+        # operator = row.operator(
+        #     "gamerigtool.toogle_game_rig_constraint", text="Mute", icon="HIDE_ON"
+        # )
+        # operator.mute = True
+        # operator.use_selected = addon_preferences.use_selected
+        #
+        # operator = row.operator(
+        #     "gamerigtool.toogle_game_rig_constraint", text="Unmute", icon="HIDE_OFF"
+        # )
+        # operator.mute = False
+        # operator.use_selected = addon_preferences.use_selected
+        #
+        # row.prop(addon_preferences, "use_selected", text="", icon="RESTRICT_SELECT_OFF")
+        #
 
         Global_Settings = scn.GRT_Action_Bakery_Global_Settings
 
+        row = layout.row(align=True)
+
         control_rig = Global_Settings.Source_Armature
         deform_rig = Global_Settings.Target_Armature
+
+        constraint_state = []
+
+        if deform_rig:
+            for bone in deform_rig.pose.bones:
+                for constraint in bone.constraints:
+                    constraint_state.append(not constraint.mute)
+
+        if len(constraint_state) > 0:
+            if all(constraint_state):
+                operator = row.operator(
+                    "gamerigtool.toogle_game_rig_constraint",
+                    text="Connected",
+                    icon="LINKED",
+                    depress=True,
+                )
+                operator.mute = True
+                operator.use_selected = addon_preferences.use_selected
+                # row.prop(
+                #     Global_Settings, "Connection", text="Connect", icon="CONSTRAINT_BONE"
+                # )
+            else:
+                operator = row.operator(
+                    "gamerigtool.toogle_game_rig_constraint",
+                    text="Disconnected",
+                    icon="UNLINKED",
+                    depress=False,
+                )
+                operator.mute = False
+                operator.use_selected = addon_preferences.use_selected
+
+                if any(constraint_state):
+                    row = layout.row(align=True)
+                    row.label(text="Partial Connection", icon="INFO")
+                # row.prop(
+                #     Global_Settings, "Connection", text="Disconnect", icon="CONSTRAINT_BONE"
+                # )
+        else:
+            row.label(text="No Constraint / Connection", icon="INFO")
 
         row = layout.row(align=True)
         row.operator("gamerigtool.toggle_rig", text="Toggle Rig")
@@ -803,8 +845,14 @@ def draw_global_bake_settings(layout, context):
     )
 
 
-def POLL_Armature(self, object):
-    return object.type == "ARMATURE"
+def POLL_Deform_Armature(self, object):
+    if object != self.Source_Armature:
+        return object.type == "ARMATURE"
+
+
+def POLL_Control_Armature(self, object):
+    if object != self.Target_Armature:
+        return object.type == "ARMATURE"
 
 
 def UPDATE_SET_Start(self, context):
@@ -924,10 +972,10 @@ class GRT_Action_Bakery_Global_Settings_Property_Group(bpy.types.PropertyGroup):
     SHOW_Bake_Settings: bpy.props.BoolProperty(default=False)
 
     Source_Armature: bpy.props.PointerProperty(
-        name="Control Armature", type=bpy.types.Object, poll=POLL_Armature
+        name="Control Armature", type=bpy.types.Object, poll=POLL_Control_Armature
     )
     Target_Armature: bpy.props.PointerProperty(
-        name="Deform Armature", type=bpy.types.Object, poll=POLL_Armature
+        name="Deform Armature", type=bpy.types.Object, poll=POLL_Deform_Armature
     )
 
     Bake_Popup: bpy.props.BoolProperty(default=True)

@@ -177,6 +177,7 @@ def draw_panel(self, context, layout):
         )
         operator.mute = False
         operator.use_selected = addon_preferences.use_selected
+        row.prop(addon_preferences, "use_selected", text="", icon="RESTRICT_SELECT_OFF")
 
         # subpanel.separator()
         # subpanel.label(text="Utility Tool", icon="MODIFIER")
