@@ -1313,8 +1313,8 @@ class GRT_Bake_Action_Bakery(bpy.types.Operator):
 
                         vis = deform_rig.hide_get()
                         vis_view = deform_rig.hide_viewport
-                        ctrl_vis = deform_rig.hide_get()
-                        ctrl_vis_view = deform_rig.hide_viewport
+                        ctrl_vis = control_rig.hide_get()
+                        ctrl_vis_view = control_rig.hide_viewport
 
                         deform_rig.hide_set(False)
                         deform_rig.hide_viewport = False
@@ -1327,8 +1327,9 @@ class GRT_Bake_Action_Bakery(bpy.types.Operator):
                         context.view_layer.objects.active = deform_rig
 
                         deform_rig.hide_set(vis)
-                        deform_rig.hide_viewport = ctrl_vis_view
-                        control_rig.hide_set(vis)
+                        deform_rig.hide_viewport = vis_view
+
+                        control_rig.hide_set(ctrl_vis)
                         control_rig.hide_viewport = ctrl_vis_view
 
         if control_rig.animation_data:
