@@ -1103,6 +1103,16 @@ class GRT_Bake_Action_Bakery(bpy.types.Operator):
         control_rig = Global_Settings.Source_Armature
         deform_rig = Global_Settings.Target_Armature
 
+        vis = deform_rig.hide_get()
+        vis_view = deform_rig.hide_viewport
+        ctrl_vis = control_rig.hide_get()
+        ctrl_vis_view = control_rig.hide_viewport
+
+        control_rig.hide_set(False)
+        deform_rig.hide_set(False)
+        control_rig.hide_viewport = False
+        deform_rig.hide_viewport = False
+
         NLA_Strip_Check = []
 
         CTRL_Save_Use_NLA = None
@@ -1311,10 +1321,10 @@ class GRT_Bake_Action_Bakery(bpy.types.Operator):
                         # control_rig.animation_data.use_nla = CTRL_Save_Use_NLA
                         # deform_rig.animation_data.use_nla = DEF_Save_Use_NLA
 
-                        vis = deform_rig.hide_get()
-                        vis_view = deform_rig.hide_viewport
-                        ctrl_vis = control_rig.hide_get()
-                        ctrl_vis_view = control_rig.hide_viewport
+                        # vis = deform_rig.hide_get()
+                        # vis_view = deform_rig.hide_viewport
+                        # ctrl_vis = control_rig.hide_get()
+                        # ctrl_vis_view = control_rig.hide_viewport
 
                         deform_rig.hide_set(False)
                         deform_rig.hide_viewport = False
@@ -1326,11 +1336,11 @@ class GRT_Bake_Action_Bakery(bpy.types.Operator):
                         deform_rig.select_set(True)
                         context.view_layer.objects.active = deform_rig
 
-                        deform_rig.hide_set(vis)
-                        deform_rig.hide_viewport = vis_view
+                        deform_rig.hide_set(False)
+                        deform_rig.hide_viewport = False
 
-                        control_rig.hide_set(ctrl_vis)
-                        control_rig.hide_viewport = ctrl_vis_view
+                        control_rig.hide_set(True)
+                        control_rig.hide_viewport = True
 
         if control_rig.animation_data:
             if CTRL_Save_Use_NLA is not None:
