@@ -6,7 +6,7 @@ from bpy_extras import anim_utils
 
 script_file = os.path.realpath(__file__)
 addon_directory = os.path.dirname(script_file)
-addon_name = os.path.basename(addon_directory)
+addon_name = __package__
 
 
 class GRT_Load_Action_Menu(bpy.types.Menu):

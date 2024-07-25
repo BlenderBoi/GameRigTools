@@ -6,15 +6,14 @@ from . import GRT_Action_Bakery
 
 script_file = os.path.realpath(__file__)
 addon_directory = os.path.dirname(script_file)
-addon_name = os.path.basename(addon_directory)
+# addon_name = os.path.basename(addon_directory)
+addon_name = __package__
 
 
 def update_panel(self, context):
-
     addon_preferences = context.preferences.addons[addon_name].preferences
     message = ": Updating Panel locations has failed"
     try:
-
         if "bl_rna" in GRT_Action_Bakery.GRT_PT_Action_Bakery.__dict__:
             bpy.utils.unregister_class(GRT_Action_Bakery.GRT_PT_Action_Bakery)
 

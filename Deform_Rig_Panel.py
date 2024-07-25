@@ -4,7 +4,8 @@ from . import Utility
 
 script_file = os.path.realpath(__file__)
 addon_directory = os.path.dirname(script_file)
-addon_name = os.path.basename(addon_directory)
+# addon_name = os.path.basename(addon_directory)
+addon_name = __package__
 
 
 def draw_armature_visibility_options(self, context, layout):
