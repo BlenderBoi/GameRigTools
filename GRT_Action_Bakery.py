@@ -849,12 +849,14 @@ def draw_global_bake_settings(layout, context):
 
 def POLL_Deform_Armature(self, object):
     if object != self.Source_Armature:
-        return object.type == "ARMATURE"
+        if object in list(bpy.context.scene.objects):
+            return object.type == "ARMATURE"
 
 
 def POLL_Control_Armature(self, object):
     if object != self.Target_Armature:
-        return object.type == "ARMATURE"
+        if object in list(bpy.context.scene.objects):
+            return object.type == "ARMATURE"
 
 
 def UPDATE_SET_Start(self, context):

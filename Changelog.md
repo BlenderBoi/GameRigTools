@@ -1,17 +1,9 @@
-GRT v4.1.0 - 6/4/2024
+GRT v4.2.0 - 25/7/2024
 
 ## Summary
 
-Minor Quality of life Updates
+- Basic Testing of All Feature, All is Working
+- Addon is updated for Blender 4.2 Extension
+- "Utility -> Remove Deform Bone" now only available in object mode
+- Control Rig and Deform Rig now only shows Armature Object in the current scene (Previously show all armature object in this blend file)
 
----
-
-### Fixed
-
-- Fix Error Caused by Hidden Control Rig When Generating Game Rig and Baking Action Bakery
-
-
-### Feature
-
-- Add Show and Hide Button for Control Rig and Game Rig
-- Added Toggle Rig, And a Boolean for Toggle Mute as Well
