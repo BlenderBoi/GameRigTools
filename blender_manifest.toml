@@ -7,7 +7,8 @@ tagline = "Game Rig Tools can extract a Game Rig out of an existing Control Rig"
 maintainer = "TinkerBoi <support@tinkerboi.com>"
 type = "add-on"
 
-website = "https://docs.tinkerboi.com/game_rig_tools"
+website = "https://cgdive.notion.site/Game-Rig-Tools-Documentation-dc61839fd1d04147a42aa89e366575fb"
+# website = "https://docs.tinkerboi.com/game_rig_tools"
 tags = ["Rigging"]
 blender_version_min = "4.2.0"
 # blender_version_max = "4.2.0"
