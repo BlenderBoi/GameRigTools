@@ -1236,8 +1236,11 @@ class GRT_Bake_Action_Bakery(bpy.types.Operator):
                                 if Global_Settings.Overwrite:
                                     check = bpy.data.actions.get(action_name)
                                     if check:
+                                        check.name = check.name + "_temp"
+                                        new_action = bpy.data.actions.new(action_name)
+                                        check.user_remap(new_action)
                                         bpy.data.actions.remove(check)
-                                        bpy.data.actions.new(action_name)
+
                                     obj_act = [
                                         [deform_rig, bpy.data.actions.get(action_name)]
                                     ]
@@ -1294,7 +1297,37 @@ class GRT_Bake_Action_Bakery(bpy.types.Operator):
                                 context.view_layer.update()
 
                                 if Global_Settings.Push_to_NLA:
-                                    deform_rig.animation_data.nla_tracks.new().strips.new(
+                                    if Global_Settings.Overwrite:
+                                        for (
+                                            track
+                                        ) in deform_rig.animation_data.nla_tracks:
+                                            if track.name == Baked_Action[0].name:
+                                                for _ in track.strips:
+                                                    for strip in track.strips:
+                                                        if (
+                                                            strip.action
+                                                            == Baked_Action[0]
+                                                        ):
+                                                            track.strips.remove(strip)
+                                                            break
+                                        for _ in deform_rig.animation_data.nla_tracks:
+                                            for (
+                                                track
+                                            ) in deform_rig.animation_data.nla_tracks:
+                                                if (
+                                                    len(track.strips) == 0
+                                                    and track.name
+                                                    == Baked_Action[0].name
+                                                ):
+                                                    deform_rig.animation_data.nla_tracks.remove(
+                                                        track
+                                                    )
+                                                    break
+
+                                    track = deform_rig.animation_data.nla_tracks.new()
+                                    track.name = Baked_Action[0].name
+
+                                    track.strips.new(
                                         Baked_Action[0].name,
                                         int(Baked_Action[0].frame_range[0]),
                                         Baked_Action[0],

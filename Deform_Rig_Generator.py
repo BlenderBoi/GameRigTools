@@ -379,8 +379,9 @@ class GRT_Generate_Game_Rig(bpy.types.Operator):
                 if not self.Use_Legacy:
                     if self.Use_Regenerate_Rig:
                         game_rig = deform_rig
-                        game_rig.hide_set(False)
-                        game_rig.hide_viewport = False
+                        if game_rig:
+                            game_rig.hide_set(False)
+                            game_rig.hide_viewport = False
 
                 if not game_rig:
                     game_rig = object.copy()
@@ -600,10 +601,12 @@ class GRT_Generate_Game_Rig(bpy.types.Operator):
                                 if modifier.object == object:
                                     modifier.object = game_rig
                                     if self.Parent_To_Deform_Rig:
+                                        mat = obj.matrix_world.copy()
                                         obj.parent = game_rig
-                                        obj.matrix_parent_inverse = (
-                                            game_rig.matrix_world.inverted()
-                                        )
+                                        obj.matrix_world = mat
+                                        # obj.matrix_parent_inverse = (
+                                        #     game_rig.matrix_world.inverted()
+                                        # )
 
             for bone in object.data.bones:
                 if self.Animator_Disable_Deform:
