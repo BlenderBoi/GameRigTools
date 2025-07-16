@@ -224,7 +224,7 @@ class GRT_Action_Bakery_List_Operator(bpy.types.Operator):
                                 if action:
                                     check = [item.Action for item in item_list]
 
-                                    if not action in check:
+                                    if action not in check:
                                         item = item_list.add()
                                         item.Action = action
                                         item.LOCAL_Baked_Name = "BAKED_" + action.name
@@ -242,7 +242,7 @@ class GRT_Action_Bakery_List_Operator(bpy.types.Operator):
             for action in bpy.data.actions:
                 check = [item.Action for item in item_list]
 
-                if not action in check:
+                if action not in check:
                     if self.name_include in action.name:
                         item = item_list.add()
                         item.Action = action
@@ -270,7 +270,7 @@ class GRT_Action_Bakery_List_Operator(bpy.types.Operator):
                     if action:
                         check = [item.Action for item in item_list]
 
-                        if not action in check:
+                        if action not in check:
                             item = item_list.add()
                             item.Action = action
                             item.LOCAL_Baked_Name = "BAKED_" + action.name
@@ -288,7 +288,7 @@ class GRT_Action_Bakery_List_Operator(bpy.types.Operator):
             for action in bpy.data.actions:
                 check = [item.Action for item in item_list]
 
-                if not action in check:
+                if action not in check:
                     item = item_list.add()
                     item.Action = action
                     item.LOCAL_Baked_Name = "BAKED_" + action.name
@@ -511,6 +511,12 @@ class GRT_PT_Action_Bakery(bpy.types.Panel):
             )
             op.Use_Regenerate_Rig = True
             op.Use_Legacy = False
+
+
+        layout.prop(Global_Settings, "use_post_generation_script" ,text="Post Generation Script")
+        if Global_Settings.use_post_generation_script:
+            layout.prop(Global_Settings, "post_generation_script" ,text="")
+
 
         if not control_rig:
             box = layout.box()
@@ -1008,6 +1014,10 @@ class GRT_Action_Bakery_Global_Settings_Property_Group(bpy.types.PropertyGroup):
     Show_Action_Bakery: bpy.props.BoolProperty(default=False)
 
     GLOBAL_Clear_Transform_Before_Bake: bpy.props.BoolProperty(default=False)
+
+    use_post_generation_script: bpy.props.BoolProperty(default=False)
+    post_generation_script: bpy.props.PointerProperty(type=bpy.types.Text)
+
 
 
 def Change_to_Baked_Name(context, item):

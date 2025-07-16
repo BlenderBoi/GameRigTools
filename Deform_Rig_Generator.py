@@ -1,5 +1,4 @@
 import bpy
-from bpy_extras import anim_utils
 import os
 from . import Utility
 
@@ -36,7 +35,7 @@ def find_first_def(bone, bones):
 
 
 def find_deform(bone, bones):
-    if not "DEF-" in bone.name:
+    if "DEF-" not in bone.name:
         new_name = bone.name.replace("ORG-", "DEF-")
         return bones.get(new_name)
 
@@ -129,6 +128,8 @@ class GRT_Generate_Game_Rig(bpy.types.Operator):
         elif control_rig:
             self.Deform_Armature_Name = control_rig.name + "_deform"
 
+            
+
         return context.window_manager.invoke_props_dialog(self)
 
     def draw(self, context):
@@ -142,6 +143,20 @@ class GRT_Generate_Game_Rig(bpy.types.Operator):
 
         control_rig = Global_Settings.Source_Armature
         deform_rig = Global_Settings.Target_Armature
+
+        if Global_Settings.use_post_generation_script and Global_Settings.post_generation_script != None:
+            layout.label(text="Use Post Generation Script is On", icon="INFO")
+            layout.label(text="Only Enable this")
+            layout.label(text="Only you are sure the Script is safe")
+            layout.label(text="if this blend file is from unknown source")
+            layout.label(text="the script might do something malicious")
+            layout.prop(Global_Settings, "use_post_generation_script", text="Use Post Generation Script")
+            layout.label(text="Turn this off if you are unsure")
+            layout.label(text="the safety of this script")
+            layout.prop(Global_Settings, "post_generation_script", text="")
+            
+            
+            
 
         if Utility.draw_subpanel(
             self,
@@ -611,6 +626,11 @@ class GRT_Generate_Game_Rig(bpy.types.Operator):
             for bone in object.data.bones:
                 if self.Animator_Disable_Deform:
                     bone.use_deform = False
+
+            if Global_Settings.use_post_generation_script:
+                if Global_Settings.post_generation_script is not None:
+                    script = Global_Settings.post_generation_script.as_string()
+                    exec(script)
 
         return {"FINISHED"}
 
