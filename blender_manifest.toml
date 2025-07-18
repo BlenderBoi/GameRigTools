@@ -1,7 +1,7 @@
 
 schema_version = "1.0.0"
 id = "game_rig_tools"
-version = "4.2.2"
+version = "4.2.3"
 name = "Game Rig Tools"
 tagline = "Game Rig Tools can extract a Game Rig out of an existing Control Rig"
 maintainer = "TinkerBoi <support@tinkerboi.com>"

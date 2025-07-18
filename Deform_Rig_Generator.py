@@ -630,7 +630,7 @@ class GRT_Generate_Game_Rig(bpy.types.Operator):
             if Global_Settings.use_post_generation_script:
                 if Global_Settings.post_generation_script is not None:
                     script = Global_Settings.post_generation_script.as_string()
-                    exec(script)
+                    exec(script, globals())
 
         return {"FINISHED"}
 
