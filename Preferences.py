@@ -46,13 +46,13 @@ class CGD_user_preferences(bpy.types.AddonPreferences):
     show_armature_display: bpy.props.BoolProperty(default=False)
 
     show_action_bakery: bpy.props.BoolProperty(default=False)
-    toogle_constraints: bpy.props.BoolProperty(default=False)
+    toggle_constraints: bpy.props.BoolProperty(default=False)
 
     game_rig_tool_panel_name: bpy.props.StringProperty(
-        default="Game Rig Tool", update=update_panel
+        default="Game Rig Tools", update=update_panel
     )
     action_bakery_panel_name: bpy.props.StringProperty(
-        default="Game Rig Tool", update=update_panel
+        default="Game Rig Tools", update=update_panel
     )
 
     use_selected: bpy.props.BoolProperty(default=False)
@@ -63,12 +63,12 @@ class CGD_user_preferences(bpy.types.AddonPreferences):
 
     def draw(self, context):
         layout = self.layout
-        layout.prop(self, "action_bakery_panel_name", text="Game Rig Tool Tab")
+        layout.prop(self, "action_bakery_panel_name", text="Game Rig Tools Tab")
         layout.prop(self, "game_rig_tool_panel_name", text="Utility Tab")
 
-        layout.prop(self, "toogle_constraints", text="Top Bar Toogle Constraint")
+        layout.prop(self, "toggle_constraints", text="Top Bar Toggle Constraint")
 
-        layout.label(text="Operators Options")
+        layout.label(text="Operator Options")
         layout.prop(
             self,
             "OPERATOR_APPLYMENU_Apply_Armature_Scale",
