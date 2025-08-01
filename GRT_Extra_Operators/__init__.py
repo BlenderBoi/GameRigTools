@@ -1,6 +1,6 @@
 import bpy
 from . import GRT_Constraint_To_Armature
-from . import GRT_Constraint_Toogle
+from . import GRT_Constraint_Toggle
 from . import GRT_Remove_Animation_Data
 from . import GRT_Remove_BBone
 from . import GRT_Remove_Bone_Shape
@@ -31,7 +31,7 @@ modules = [
     GRT_Clear_All_Bones_Constraints,
     GRT_Batch_Rename_Actions,
     GRT_Constraint_To_Armature,
-    GRT_Constraint_Toogle,
+    GRT_Constraint_Toggle,
     GRT_Remove_Animation_Data,
     GRT_Remove_BBone,
     GRT_Remove_Bone_Shape,

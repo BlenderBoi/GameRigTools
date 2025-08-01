@@ -83,7 +83,7 @@ class GRT_OT_Toggle_Rig(bpy.types.Operator):
             bpy.ops.object.mode_set(mode="OBJECT", toggle=False)
 
             if Global_Settings.toggle_mute:
-                bpy.ops.gamerigtool.toogle_game_rig_constraint(
+                bpy.ops.gamerigtool.toggle_game_rig_constraint(
                     mute=False, use_selected=False
                 )
 
@@ -107,7 +107,7 @@ class GRT_OT_Toggle_Rig(bpy.types.Operator):
 
             bpy.ops.object.mode_set(mode="OBJECT", toggle=False)
             if Global_Settings.toggle_mute:
-                bpy.ops.gamerigtool.toogle_game_rig_constraint(
+                bpy.ops.gamerigtool.toggle_game_rig_constraint(
                     mute=True, use_selected=False
                 )
 
@@ -380,7 +380,7 @@ class GRT_PT_Action_Bakery(bpy.types.Panel):
     # @classmethod
     # def poll(cls, context):
 
-    # Top Bar Toogle Constraint Update
+    # Top Bar toggle Constraint Update
 
     # addon_preferences = context.preferences.addons[addon_name].preferences
     #
@@ -399,13 +399,13 @@ class GRT_PT_Action_Bakery(bpy.types.Panel):
         row = layout.row(align=True)
 
         # operator = row.operator(
-        #     "gamerigtool.toogle_game_rig_constraint", text="Mute", icon="HIDE_ON"
+        #     "gamerigtool.toggle_game_rig_constraint", text="Mute", icon="HIDE_ON"
         # )
         # operator.mute = True
         # operator.use_selected = addon_preferences.use_selected
         #
         # operator = row.operator(
-        #     "gamerigtool.toogle_game_rig_constraint", text="Unmute", icon="HIDE_OFF"
+        #     "gamerigtool.toggle_game_rig_constraint", text="Unmute", icon="HIDE_OFF"
         # )
         # operator.mute = False
         # operator.use_selected = addon_preferences.use_selected
@@ -430,7 +430,7 @@ class GRT_PT_Action_Bakery(bpy.types.Panel):
         if len(constraint_state) > 0:
             if all(constraint_state):
                 operator = row.operator(
-                    "gamerigtool.toogle_game_rig_constraint",
+                    "gamerigtool.toggle_game_rig_constraint",
                     text="Connected",
                     icon="LINKED",
                     depress=True,
@@ -443,7 +443,7 @@ class GRT_PT_Action_Bakery(bpy.types.Panel):
                 # )
             else:
                 operator = row.operator(
-                    "gamerigtool.toogle_game_rig_constraint",
+                    "gamerigtool.toggle_game_rig_constraint",
                     text="Disconnected",
                     icon="UNLINKED",
                     depress=False,

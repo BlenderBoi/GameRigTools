@@ -3,11 +3,11 @@ import bpy
 # Editing bone
 
 
-class GRT_Constraint_Toogle(bpy.types.Operator):
-    """Constraint Toogle"""
+class GRT_Constraint_Toggle(bpy.types.Operator):
+    """Constraint Toggle"""
 
-    bl_idname = "gamerigtool.toogle_constraint"
-    bl_label = "Toogle Constraints"
+    bl_idname = "gamerigtool.toggle_constraint"
+    bl_label = "Toggle Constraints"
     bl_options = {"REGISTER", "UNDO"}
 
     mute: bpy.props.BoolProperty()
@@ -39,11 +39,11 @@ class GRT_Constraint_Toogle(bpy.types.Operator):
         return {"FINISHED"}
 
 
-class GRT_Constraint_Game_Rig_Toogle(bpy.types.Operator):
-    """Constraint Game Rig Toogle"""
+class GRT_Constraint_Game_Rig_Toggle(bpy.types.Operator):
+    """Constraint Game Rig Toggle"""
 
-    bl_idname = "gamerigtool.toogle_game_rig_constraint"
-    bl_label = "Toogle Game Rig Constraints"
+    bl_idname = "gamerigtool.toggle_game_rig_constraint"
+    bl_label = "Toggle Game Rig Constraints"
     bl_options = {"REGISTER", "UNDO"}
 
     mute: bpy.props.BoolProperty()
@@ -79,7 +79,7 @@ class GRT_Constraint_Game_Rig_Toogle(bpy.types.Operator):
         return {"FINISHED"}
 
 
-classes = [GRT_Constraint_Toogle, GRT_Constraint_Game_Rig_Toogle]
+classes = [GRT_Constraint_Toggle, GRT_Constraint_Game_Rig_Toggle]
 
 
 def register():

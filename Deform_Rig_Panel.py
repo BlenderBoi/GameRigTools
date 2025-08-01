@@ -144,11 +144,11 @@ def draw_panel(self, context, layout):
 
     # row = layout.row(align=True)
 
-    # operator = row.operator("gamerigtool.toogle_constraint", text="Mute", icon="HIDE_ON")
+    # operator = row.operator("gamerigtool.toggle_constraint", text="Mute", icon="HIDE_ON")
     # operator.mute = True
     # operator.use_selected = addon_preferences.use_selected
 
-    # operator = row.operator("gamerigtool.toogle_constraint", text="Unmute", icon="HIDE_OFF")
+    # operator = row.operator("gamerigtool.toggle_constraint", text="Unmute", icon="HIDE_OFF")
     # operator.mute = False
     # operator.use_selected = addon_preferences.use_selected
 
@@ -168,13 +168,13 @@ def draw_panel(self, context, layout):
         row = subpanel.row(align=True)
 
         operator = row.operator(
-            "gamerigtool.toogle_constraint", text="Mute", icon="HIDE_ON"
+            "gamerigtool.toggle_constraint", text="Mute", icon="HIDE_ON"
         )
         operator.mute = True
         operator.use_selected = addon_preferences.use_selected
 
         operator = row.operator(
-            "gamerigtool.toogle_constraint", text="Unmute", icon="HIDE_OFF"
+            "gamerigtool.toggle_constraint", text="Unmute", icon="HIDE_OFF"
         )
         operator.mute = False
         operator.use_selected = addon_preferences.use_selected
