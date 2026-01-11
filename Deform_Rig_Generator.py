@@ -16,6 +16,8 @@ constraint_type = [
 ENUM_Extract_Mode = [
     ("SELECTED", "Selected", "Selected"),
     ("DEFORM", "Deform", "Deform"),
+    ("COLLECTION", "Collection", "Collection"),
+    ("DEFORM_AND_COLLECTION", "Deform and Collection", "Deform and Collection"),
     ("SELECTED_DEFORM", "Selected Deform", "Selected Deform"),
     ("DEFORM_AND_SELECTED", "Deform and Selected", "Deform and Selected"),
 ]
@@ -75,6 +77,7 @@ class GRT_Generate_Game_Rig(bpy.types.Operator):
     SUB_Binding_Settings: bpy.props.BoolProperty(default=False)
 
     Extract_Mode: bpy.props.EnumProperty(items=ENUM_Extract_Mode, default="DEFORM")
+    Extract_Collection: bpy.props.StringProperty()
     Copy_Root_Scale: bpy.props.BoolProperty(default=False)
     Root_Bone_Name: bpy.props.StringProperty(default="root")
     Root_Bone_Picker: bpy.props.BoolProperty(default=True)
@@ -252,6 +255,8 @@ class GRT_Generate_Game_Rig(bpy.types.Operator):
             box.separator()
             # box.label(text="Extract Mode:")
             box.prop(self, "Extract_Mode", text="")
+            if (self.Extract_Mode == "COLLECTION" or self.Extract_Mode == "DEFORM_AND_COLLECTION"):
+                 box.prop(self, "Extract_Collection", text="Collection")
 
             box.separator()
         layout.separator()
@@ -418,11 +423,19 @@ class GRT_Generate_Game_Rig(bpy.types.Operator):
 
                 Edit_Bones = game_rig.data.edit_bones
 
+                extract_collection_bones = []
+                if self.Extract_Mode == "COLLECTION" or self.Extract_Mode == "DEFORM_AND_COLLECTION":
+                    extract_collection = control_rig.data.collections.get(self.Extract_Collection)
+                    if extract_collection:
+                        extract_collection_bones = extract_collection.bones
+                    else:
+                        self.report({'WARNING'}, f"Collection {self.Extract_Collection} not found in control rig")
+
                 if self.Rigify_Hierarchy_Fix:
                     for bone in Edit_Bones:
-                        if bone.use_deform:
+                        if bone.use_deform or bone.name in extract_collection_bones:
                             if bone.parent:
-                                if not bone.parent.use_deform:
+                                if not bone.parent.use_deform or bone.parent.name not in extract_collection_bones:
                                     recursive_parent = bone.parent_recursive
 
                                     for f in recursive_parent:
@@ -433,7 +446,7 @@ class GRT_Generate_Game_Rig(bpy.types.Operator):
                                             b = find_deform(f, Edit_Bones)
                                             if b:
                                                 if not b.name == bone.name:
-                                                    if b.use_deform:
+                                                    if b.use_deform or bone.parent.name in extract_collection_bones:
                                                         bone.parent = b
                                                         break
 
@@ -522,6 +535,14 @@ class GRT_Generate_Game_Rig(bpy.types.Operator):
 
                         if self.Extract_Mode == "DEFORM":
                             if not bone.use_deform:
+                                Edit_Bones.remove(bone)
+
+                        if self.Extract_Mode == "COLLECTION":
+                            if bone.name not in extract_collection_bones:
+                                Edit_Bones.remove(bone)
+
+                        if self.Extract_Mode == "DEFORM_AND_COLLECTION":
+                            if not bone.use_deform and bone.name not in extract_collection_bones:
                                 Edit_Bones.remove(bone)
 
                         if self.Extract_Mode == "SELECTED_DEFORM":
