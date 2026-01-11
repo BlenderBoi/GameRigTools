@@ -128,7 +128,7 @@ class GRT_Generate_Game_Rig(bpy.types.Operator):
         elif control_rig:
             self.Deform_Armature_Name = control_rig.name + "_deform"
 
-            
+
 
         return context.window_manager.invoke_props_dialog(self)
 
@@ -154,9 +154,9 @@ class GRT_Generate_Game_Rig(bpy.types.Operator):
             layout.label(text="Turn this off if you are unsure")
             layout.label(text="the safety of this script")
             layout.prop(Global_Settings, "post_generation_script", text="")
-            
-            
-            
+
+
+
 
         if Utility.draw_subpanel(
             self,
@@ -641,13 +641,13 @@ def draw_item(self, context):
 
     addon_preferences = context.preferences.addons[addon_name].preferences
 
-    if addon_preferences.toogle_constraints:
+    if addon_preferences.toggle_constraints:
         if context.mode == "POSE":
-            operator = row.operator("gamerigtool.toogle_constraint", text="Mute")
+            operator = row.operator("gamerigtool.toggle_constraint", text="Mute")
             operator.mute = True
             operator.use_selected = addon_preferences.use_selected
 
-            operator = row.operator("gamerigtool.toogle_constraint", text="Unmute")
+            operator = row.operator("gamerigtool.toggle_constraint", text="Unmute")
             operator.mute = False
             operator.use_selected = addon_preferences.use_selected
 
