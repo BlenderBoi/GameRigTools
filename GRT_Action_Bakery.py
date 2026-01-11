@@ -840,17 +840,14 @@ def draw_global_bake_settings(layout, context):
     )
     layout.prop(Global_Settings, "BAKE_SETTINGS_Do_Parent_Clear", text="Clear Parent")
     layout.prop(Global_Settings, "BAKE_SETTINGS_Do_Clean", text="Clean Curves")
-    layout.prop(Global_Settings, "BAKE_SETTINGS_Do_Pose", text="Bake Pose")
-    layout.prop(Global_Settings, "BAKE_SETTINGS_Do_Object", text="Bake Object")
 
-    layout.label(text="Channels")
-    layout.prop(Global_Settings, "BAKE_SETTINGS_Location", text="Location")
-    layout.prop(Global_Settings, "BAKE_SETTINGS_Rotation", text="Rotaton")
-    layout.prop(Global_Settings, "BAKE_SETTINGS_Scale", text="Scale")
-    layout.prop(Global_Settings, "BAKE_SETTINGS_BBone", text="BBone")
-    layout.prop(
-        Global_Settings, "BAKE_SETTINGS_Custom_Properties", text="Custom Properties"
-    )
+    col = layout.column(align=True)
+    col.label(text="Bake Data")
+    col.prop(Global_Settings, "BAKE_SETTINGS_Bake_Data", expand=True)
+
+    col = layout.column(align=True)
+    col.label(text="Channels")
+    col.prop(Global_Settings, "BAKE_SETTINGS_Channels", expand=True)
 
 
 def POLL_Deform_Armature(self, object):
@@ -962,6 +959,18 @@ ENUM_Baked_Name_Mode = [
     ("REPLACE", "Replace", "Replace"),
 ]
 
+ENUM_Bake_Data = [
+    ("POSE", "Pose", "Pose"),
+    ("OBJECT", "Object", "Object"),
+]
+
+ENUM_Channels = [
+    ("LOCATION", "Location", "Location"),
+    ("ROTATION", "Rotation", "Rotation"),
+    ("SCALE", "Scale", "Scale"),
+    ("BBONE", "BBone", "BBone"),
+    ("CUSTOM_PROPERTIES", "Custom Properties", "Custom Properties"),
+]
 
 class GRT_Action_Bakery_Global_Settings_Property_Group(bpy.types.PropertyGroup):
     Push_to_NLA: bpy.props.BoolProperty(default=True)
@@ -991,18 +1000,23 @@ class GRT_Action_Bakery_Global_Settings_Property_Group(bpy.types.PropertyGroup):
     Bake_Popup: bpy.props.BoolProperty(default=True)
 
     BAKE_SETTINGS_Only_Selected: bpy.props.BoolProperty(default=False)
-    BAKE_SETTINGS_Do_Pose: bpy.props.BoolProperty(default=True)
-    BAKE_SETTINGS_Do_Object: bpy.props.BoolProperty(default=False)
+
+    BAKE_SETTINGS_Bake_Data: bpy.props.EnumProperty(
+        items=ENUM_Bake_Data, 
+        default={"POSE"}, 
+        options={'ENUM_FLAG'}
+    )
+
     BAKE_SETTINGS_Do_Visual_Keying: bpy.props.BoolProperty(default=True)
     BAKE_SETTINGS_Do_Constraint_Clear: bpy.props.BoolProperty(default=False)
     BAKE_SETTINGS_Do_Parent_Clear: bpy.props.BoolProperty(default=False)
     BAKE_SETTINGS_Do_Clean: bpy.props.BoolProperty(default=False)
 
-    BAKE_SETTINGS_Location: bpy.props.BoolProperty(default=True)
-    BAKE_SETTINGS_Rotation: bpy.props.BoolProperty(default=True)
-    BAKE_SETTINGS_Scale: bpy.props.BoolProperty(default=True)
-    BAKE_SETTINGS_BBone: bpy.props.BoolProperty(default=True)
-    BAKE_SETTINGS_Custom_Properties: bpy.props.BoolProperty(default=True)
+    BAKE_SETTINGS_Channels: bpy.props.EnumProperty(
+        items=ENUM_Channels, 
+        default={"LOCATION", "ROTATION", "SCALE", "BBONE", "CUSTOM_PROPERTIES"},
+        options={'ENUM_FLAG'}
+    )
 
     active_to_control_rig: bpy.props.BoolProperty(
         default=False, update=UPDATE_active_to_control_rig
@@ -1251,56 +1265,41 @@ class GRT_Bake_Action_Bakery(bpy.types.Operator):
                                         check.user_remap(new_action)
                                         bpy.data.actions.remove(check)
 
-                                    obj_act = [
-                                        [deform_rig, bpy.data.actions.get(action_name)]
-                                    ]
+                                    obj_act = bpy.data.actions.get(action_name)
                                 else:
-                                    obj_act = [[deform_rig, None]]
+                                    obj_act = None
 
-                                # obj_act = [[deform_rig, None]]
-                                Baked_Action = anim_utils.bake_action_objects(
-                                    obj_act,
+                                Baked_Action = anim_utils.bake_action(
+                                    deform_rig,
+                                    action=obj_act,
                                     frames=frame,
                                     bake_options=anim_utils.BakeOptions(
                                         only_selected=Global_Settings.BAKE_SETTINGS_Only_Selected,
-                                        do_pose=Global_Settings.BAKE_SETTINGS_Do_Pose,
-                                        do_object=Global_Settings.BAKE_SETTINGS_Do_Object,
+                                        do_pose="POSE" in Global_Settings.BAKE_SETTINGS_Bake_Data,
+                                        do_object="OBJECT" in Global_Settings.BAKE_SETTINGS_Bake_Data,
                                         do_visual_keying=Global_Settings.BAKE_SETTINGS_Do_Visual_Keying,
                                         do_constraint_clear=Global_Settings.BAKE_SETTINGS_Do_Constraint_Clear,
                                         do_parents_clear=Global_Settings.BAKE_SETTINGS_Do_Parent_Clear,
                                         do_clean=Global_Settings.BAKE_SETTINGS_Do_Clean,
-                                        do_location=Global_Settings.BAKE_SETTINGS_Location,
-                                        do_rotation=Global_Settings.BAKE_SETTINGS_Rotation,
-                                        do_scale=Global_Settings.BAKE_SETTINGS_Scale,
-                                        do_bbone=Global_Settings.BAKE_SETTINGS_BBone,
-                                        do_custom_props=Global_Settings.BAKE_SETTINGS_Custom_Properties,
+                                        do_location="LOCATION" in Global_Settings.BAKE_SETTINGS_Channels,
+                                        do_rotation="ROTATION" in Global_Settings.BAKE_SETTINGS_Channels,
+                                        do_scale="SCALE" in Global_Settings.BAKE_SETTINGS_Channels,
+                                        do_bbone="BBONE" in Global_Settings.BAKE_SETTINGS_Channels,
+                                        do_custom_props="CUSTOM_PROPERTIES" in Global_Settings.BAKE_SETTINGS_Channels,
                                     ),
                                 )
-                                # Baked_Action = anim_utils.bake_action_objects(obj_act, frames=frame, bake_options)
 
-                                # if Global_Settings.Overwrite:
-                                #     duplicate_check = bpy.data.actions.get(action_name)
-                                #     if duplicate_check:
-                                #
-                                #
-                                #         context.view_layer.update()
-                                #         bpy.data.actions.remove(duplicate_check)
-                                #         context.view_layer.update()
-                                #
-                                #         if Global_Settings.Clean_Empty_NLA_Strip:
-                                #             for nla_track in deform_rig.animation_data.nla_tracks:
-                                #                 for s in nla_track.strips:
-                                #                     for strip in nla_track.strips:
-                                #                         if strip.action == None:
-                                #                             nla_track.strips.remove(strip)
-                                #                             break
+                                # bake_action may return None if neither pose nor object data were selected for baking
+                                if (Baked_Action is None):
+                                    self.report({'INFO'}, "Nothing to bake")
+                                    continue
 
-                                Baked_Action[0].name = action_name
+                                Baked_Action.name = action_name
 
                                 if Baker.offset_keyframe_to_frame_one:
-                                    start_frame = int(Baked_Action[0].frame_range[0])
+                                    start_frame = int(Baked_Action.frame_range[0])
 
-                                    for channelbag in Baked_Action[0].layers[0].strips[0].channelbags:
+                                    for channelbag in Baked_Action.layers[0].strips[0].channelbags:
                                         for fcurve in channelbag.fcurves:
                                             for kp in fcurve.keyframe_points:
                                                 kp.co.x = kp.co.x - start_frame + 1
@@ -1312,12 +1311,12 @@ class GRT_Bake_Action_Bakery(bpy.types.Operator):
                                         for (
                                             track
                                         ) in deform_rig.animation_data.nla_tracks:
-                                            if track.name == Baked_Action[0].name:
+                                            if track.name == Baked_Action.name:
                                                 for _ in track.strips:
                                                     for strip in track.strips:
                                                         if (
                                                             strip.action
-                                                            == Baked_Action[0]
+                                                            == Baked_Action
                                                         ):
                                                             track.strips.remove(strip)
                                                             break
@@ -1328,7 +1327,7 @@ class GRT_Bake_Action_Bakery(bpy.types.Operator):
                                                 if (
                                                     len(track.strips) == 0
                                                     and track.name
-                                                    == Baked_Action[0].name
+                                                    == Baked_Action.name
                                                 ):
                                                     deform_rig.animation_data.nla_tracks.remove(
                                                         track
@@ -1336,15 +1335,15 @@ class GRT_Bake_Action_Bakery(bpy.types.Operator):
                                                     break
 
                                     track = deform_rig.animation_data.nla_tracks.new()
-                                    track.name = Baked_Action[0].name
+                                    track.name = Baked_Action.name
 
                                     track.strips.new(
-                                        Baked_Action[0].name,
-                                        int(Baked_Action[0].frame_range[0]),
-                                        Baked_Action[0],
+                                        Baked_Action.name,
+                                        int(Baked_Action.frame_range[0]),
+                                        Baked_Action,
                                     )
-                                    # deform_rig.animation_data.nla_tracks.new().strips.new(Baked_Action[0].name, action.frame_range[0], Baked_Action[0])
-                                    # deform_rig.animation_data.nla_tracks.new().strips.new(Baked_Action[0].name, 0, Baked_Action[0])
+                                    # deform_rig.animation_data.nla_tracks.new().strips.new(Baked_Action.name, action.frame_range[0], Baked_Action)
+                                    # deform_rig.animation_data.nla_tracks.new().strips.new(Baked_Action.name, 0, Baked_Action)
 
                         # for nla_track_pair in nla_track_state:
                         #     print(nla_track_pair[1])
