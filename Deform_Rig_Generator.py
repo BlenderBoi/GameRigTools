@@ -1,5 +1,7 @@
-import bpy
 import os
+
+import bpy
+
 from . import Utility
 
 script_file = os.path.realpath(__file__)
@@ -351,6 +353,19 @@ class GRT_Generate_Game_Rig(bpy.types.Operator):
         control_rig = Global_Settings.Source_Armature
         deform_rig = Global_Settings.Target_Armature
 
+        selected_bone_names = []
+
+        if context.mode == "EDIT_ARMATURE": 
+            for bone in control_rig.data.edit_bones:
+                if bone.select:
+                    selected_bone_names.append(bone.name)
+
+        elif context.mode == "POSE":
+            for bone in control_rig.pose.bones:
+                if bone.select:
+                    selected_bone_names.append(bone.name)
+
+
         if self.Hierarchy_Mode == "KEEP_EXISTING":
             self.Rigify_Hierarchy_Fix = False
             self.Flat_Hierarchy = False
@@ -515,9 +530,13 @@ class GRT_Generate_Game_Rig(bpy.types.Operator):
                         #     else:
                         #         bone.layers[i] = False
 
+                    def is_bone_selected(bone_name):
+                        return bone_name in selected_bone_names
+
+
                     if self.Deform_Remove_Non_Deform_Bone:
                         if self.Extract_Mode == "SELECTED":
-                            if not bone.select:
+                            if not is_bone_selected(bone.name):
                                 Edit_Bones.remove(bone)
 
                         if self.Extract_Mode == "DEFORM":
@@ -525,12 +544,12 @@ class GRT_Generate_Game_Rig(bpy.types.Operator):
                                 Edit_Bones.remove(bone)
 
                         if self.Extract_Mode == "SELECTED_DEFORM":
-                            if not bone.select:
+                            if not is_bone_selected(bone.name):
                                 if not bone.use_deform:
                                     Edit_Bones.remove(bone)
 
                         if self.Extract_Mode == "DEFORM_AND_SELECTED":
-                            if not bone.use_deform and not bone.select:
+                            if not bone.use_deform and not is_bone_selected(bone.name):
                                 Edit_Bones.remove(bone)
 
                 bpy.ops.object.mode_set(mode="POSE")
